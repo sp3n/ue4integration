@@ -406,7 +406,7 @@ void FFMODStudioModule::StartupModule()
 
 	if (LoadLibraries())
 	{
-		verifyfmod(FMOD::Debug_Initialize(FMOD_DEBUG_LEVEL_LOG, FMOD_DEBUG_MODE_CALLBACK, FMODLogCallback));
+		verifyfmod(FMOD::Debug_Initialize(FMOD_DEBUG_LEVEL_WARNING, FMOD_DEBUG_MODE_CALLBACK, FMODLogCallback));
 		verifyfmod(FMOD::Memory_Initialize(0, 0, FMODMemoryAlloc, FMODMemoryRealloc, FMODMemoryFree));
 		verifyfmod(FMODPlatformSystemSetup());
 
@@ -569,7 +569,8 @@ void FFMODStudioModule::CreateStudioSystem(EFMODSystemContext::Type Type)
 	{
 		for (FString PluginName : Settings.PluginFiles)
 		{
-			LoadPlugin(*PluginName);
+			if (!PluginName.IsEmpty())
+				LoadPlugin(*PluginName);
 		}
 	}
 }
@@ -642,11 +643,19 @@ void FFMODStudioModule::UpdateViewportPosition()
 	{
 		for (FConstPlayerControllerIterator Iterator = ViewportWorld->GetPlayerControllerIterator(); Iterator; ++Iterator)
 		{
+#if ENGINE_MINOR_VERSION > 14
+			APlayerController* PlayerController = Iterator->Get();
+#else
 			APlayerController* PlayerController = *Iterator;
+#endif
 			if (PlayerController)
 			{
-				//ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(PlayerController->Player);
-				if (PlayerController->IsLocalPlayerController())
+#if ENGINE_MINOR_VERSION > 14
+				ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
+#else
+				ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(PlayerController->Player);
+#endif
+				if (LocalPlayer)
 				{
 					FVector Location;
 					FVector ProjFront;

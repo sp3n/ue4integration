@@ -5,6 +5,8 @@
 #include "fmod_studio.hpp"
 #include "fmod.hpp"
 
+#include "Runtime/Launch/Resources/Version.h"
+
 #include "FMODStudioModule.h"
 
 #define verifyfmod(fn) { FMOD_RESULT _result = (fn); if (_result != FMOD_OK) { FMODUtils::LogError(_result, #fn); } }

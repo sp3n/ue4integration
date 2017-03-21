@@ -213,7 +213,12 @@ void UFMODAudioComponent::UpdateAttenuation()
 {
 	if (!GetOwner()) return; // May not have owner when previewing animations
 
+#if ENGINE_MINOR_VERSION > 14
+	const FSoundAttenuationSettings* AttenuationSettingsPtr = nullptr;
+#else
 	const FAttenuationSettings* AttenuationSettingsPtr = nullptr;
+#endif
+
 	if (bOverrideAttenuation)
 	{
 		AttenuationSettingsPtr = &AttenuationOverrides;
@@ -303,6 +308,12 @@ void UFMODAudioComponent::ApplyVolumeLPF()
 					if (DSPType == FMOD_DSP_TYPE_LOWPASS || DSPType == FMOD_DSP_TYPE_LOWPASS_SIMPLE)
 					{
 						ChanDSP->setParameterFloat(FMOD_DSP_LOWPASS_CUTOFF, CurLPF);
+						LastLPF = CurLPF; // Actually set it!
+						break;
+					}					
+					else if (DSPType == FMOD_DSP_TYPE_THREE_EQ)
+					{
+						ChanDSP->setParameterFloat(FMOD_DSP_THREE_EQ_LOWCROSSOVER, CurLPF);
 						LastLPF = CurLPF; // Actually set it!
 						break;
 					}

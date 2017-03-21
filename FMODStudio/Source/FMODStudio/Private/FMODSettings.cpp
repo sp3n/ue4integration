@@ -46,7 +46,7 @@ FString UFMODSettings::GetFullBankPath() const
 	}
 	else
 	{
-#if PLATFORM_IOS || PLATFORM_ANDROID || (ENGINE_MINOR_VERSION > 14 && PLATFORM_SWITCH)
+#if PLATFORM_IOS || PLATFORM_ANDROID
 		FString PlatformName = "Mobile";
 #elif PLATFORM_PS4
 		FString PlatformName = "PS4";
