@@ -74,10 +74,6 @@ namespace FMOD
 struct FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES;
 struct FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES;
 
-#if ENGINE_MINOR_VESION > 15
-struct FInteriorSettings;
-#endif
-
 /**
  * Plays FMOD Studio events.
  */
