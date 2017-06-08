@@ -9,7 +9,7 @@ namespace UnrealBuildTool.Rules
     #else
         public FMODStudio(TargetInfo Target)
     #endif
-        {
+        { 
             bEnforceIWYU = false;
             PCHUsage = PCHUsageMode.UseSharedPCHs;
 			

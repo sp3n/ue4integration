@@ -276,6 +276,7 @@ void FFMODStudioEditorModule::StartupModule()
     FMODControlTrackEditorCreateTrackEditorHandle = SequencerModule.RegisterTrackEditor_Handle(FOnCreateTrackEditor::CreateStatic(&FFMODEventControlTrackEditor::CreateTrackEditor));
     FMODParamTrackEditorCreateTrackEditorHandle = SequencerModule.RegisterTrackEditor_Handle(FOnCreateTrackEditor::CreateStatic(&FFMODEventParameterTrackEditor::CreateTrackEditor));
 #endif
+
 	// Register the details customizations
 	{
 		FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
@@ -957,7 +958,9 @@ void FFMODStudioEditorModule::ShutdownModule()
         SequencerModule->UnRegisterTrackEditor_Handle(FMODControlTrackEditorCreateTrackEditorHandle);
         SequencerModule->UnRegisterTrackEditor_Handle(FMODParamTrackEditorCreateTrackEditorHandle);
 #endif
+
     }
+
     IFMODStudioModule::Get().BanksReloadedEvent().Remove(HandleBanksReloadedDelegateHandle);
 }
 

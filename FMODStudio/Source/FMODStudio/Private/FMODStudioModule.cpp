@@ -345,11 +345,11 @@ FString FFMODStudioModule::GetDllPath(const TCHAR* ShortName, bool bExplicitPath
 #elif PLATFORM_LINUX
 	return FString::Printf(TEXT("%s%s.so"), LibPrefixName, ShortName);
 #elif PLATFORM_WINDOWS
-	#if PLATFORM_64BITS
-		return FString::Printf(TEXT("%s/Win64/%s.dll"), *BaseLibPath, ShortName);
-	#else
-		return FString::Printf(TEXT("%s/Win32/%s.dll"), *BaseLibPath, ShortName);
-	#endif
+#if PLATFORM_64BITS
+	return FString::Printf(TEXT("%s/Win64/%s.dll"), *BaseLibPath, ShortName);
+#else
+	return FString::Printf(TEXT("%s/Win32/%s.dll"), *BaseLibPath, ShortName);
+#endif
 #else
 	UE_LOG(LogFMOD, Error, TEXT("Unsupported platform for dynamic libs"));
 	return "";
@@ -358,12 +358,6 @@ FString FFMODStudioModule::GetDllPath(const TCHAR* ShortName, bool bExplicitPath
 
 bool FFMODStudioModule::LoadLibraries()
 {
-#if ENGINE_MINOR_VERSION > 14
-	#if PLATFORM_SWITCH
-		return true; // Nothing to do
-	#endif
-#endif
-
 #if PLATFORM_IOS || PLATFORM_ANDROID || PLATFORM_LINUX || PLATFORM_MAC
 	return true; // Nothing to do on those platforms
 #elif PLATFORM_HTML5
@@ -379,7 +373,7 @@ bool FFMODStudioModule::LoadLibraries()
 #elif defined(FMODSTUDIO_LINK_RELEASE)
 	FString ConfigName = TEXT("");
 #else
-	#error FMODSTUDIO_LINK not defined
+#error FMODSTUDIO_LINK not defined
 #endif
 
 #if PLATFORM_WINDOWS && PLATFORM_64BITS
@@ -445,15 +439,15 @@ inline FMOD_SPEAKERMODE ConvertSpeakerMode(EFMODSpeakerMode::Type Mode)
 {
 	switch (Mode)
 	{
-		case EFMODSpeakerMode::Stereo:
-			return FMOD_SPEAKERMODE_STEREO;
-		case EFMODSpeakerMode::Surround_5_1:
-			return FMOD_SPEAKERMODE_5POINT1;
-		case EFMODSpeakerMode::Surround_7_1:
-			return FMOD_SPEAKERMODE_7POINT1;
-		default:
-			check(0);
-			return FMOD_SPEAKERMODE_DEFAULT;
+	case EFMODSpeakerMode::Stereo:
+		return FMOD_SPEAKERMODE_STEREO;
+	case EFMODSpeakerMode::Surround_5_1:
+		return FMOD_SPEAKERMODE_5POINT1;
+	case EFMODSpeakerMode::Surround_7_1:
+		return FMOD_SPEAKERMODE_7POINT1;
+	default:
+		check(0);
+		return FMOD_SPEAKERMODE_DEFAULT;
 	};
 }
 
@@ -551,13 +545,11 @@ void FFMODStudioModule::CreateStudioSystem(EFMODSystemContext::Type Type)
 		InitFlags |= FMOD_INIT_VOL0_BECOMES_VIRTUAL;
 	}
 #if PLATFORM_IOS || PLATFORM_ANDROID
-	advSettings.maxFADPCMCodecs = Settings.RealChannelCount;
+	advSettings.maxADPCMCodecs = Settings.RealChannelCount;
 #elif PLATFORM_PS4
 	advSettings.maxAT9Codecs = Settings.RealChannelCount;
 #elif PLATFORM_XBOXONE
 	advSettings.maxXMACodecs = Settings.RealChannelCount;
-#elif ENGINE_MINOR_VERSION > 14 && PLATFORM_SWITCH
-	advSettings.maxFADPCMCodecs = Settings.RealChannelCount;
 #else
 	advSettings.maxVorbisCodecs = Settings.RealChannelCount;
 #endif
@@ -565,9 +557,9 @@ void FFMODStudioModule::CreateStudioSystem(EFMODSystemContext::Type Type)
 	advSettings.randomSeed = FMath::Rand();
 	verifyfmod(lowLevelSystem->setAdvancedSettings(&advSettings));
 
-	FMOD_STUDIO_ADVANCEDSETTINGS advStudioSettings = {0};
-	advStudioSettings.cbsize = sizeof(advStudioSettings);
-	advStudioSettings.studioupdateperiod = Settings.StudioUpdatePeriod;
+	FMOD_STUDIO_ADVANCEDSETTINGS advStudioSettings = { 0 };
+	advStudioSettings.cbSize = sizeof(advStudioSettings);
+	advStudioSettings.studioUpdatePeriod = Settings.StudioUpdatePeriod;
 	verifyfmod(StudioSystem[Type]->setAdvancedSettings(&advStudioSettings));
 
 	verifyfmod(StudioSystem[Type]->initialize(Settings.TotalChannelCount, StudioInitFlags, InitFlags, InitData));
@@ -611,8 +603,8 @@ bool FFMODStudioModule::Tick(float DeltaTime)
 	{
 		FMOD_STUDIO_CPU_USAGE Usage = {};
 		StudioSystem[EFMODSystemContext::Runtime]->getCPUUsage(&Usage);
-		SET_FLOAT_STAT(STAT_FMOD_CPUMixer, Usage.dspusage);
-		SET_FLOAT_STAT(STAT_FMOD_CPUStudio, Usage.studiousage);
+		SET_FLOAT_STAT(STAT_FMOD_CPUMixer, Usage.dspUsage);
+		SET_FLOAT_STAT(STAT_FMOD_CPUStudio, Usage.studioUsage);
 
 		int currentAlloc, maxAlloc;
 		FMOD::Memory_GetStats(&currentAlloc, &maxAlloc, false);
@@ -1032,7 +1024,7 @@ void FFMODStudioModule::LoadBanks(EFMODSystemContext::Type Type)
 		UE_LOG(LogFMOD, Verbose, TEXT("LoadBanks for context %s"), FMODSystemContextNames[Type]);
 
 		/*
-			Queue up all banks to load asynchronously then wait at the end.
+		Queue up all banks to load asynchronously then wait at the end.
 		*/
 		bool bLoadAllBanks = ((Type == EFMODSystemContext::Auditioning) || Settings.bLoadAllBanks);
 		bool bLoadSampleData = ((Type == EFMODSystemContext::Runtime) && Settings.bLoadAllSampleData);
