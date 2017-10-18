@@ -434,10 +434,8 @@ void UFMODAudioComponent::SetEvent(UFMODEvent* NewEvent)
 
 	if (Event != NewEvent)
     {
+        ReleaseEventCache();
         Event = NewEvent;
-        
-        ParameterCache.Empty();
-        bDefaultParameterValuesCached = false;
     }
 
 	if (bPlay)
@@ -708,6 +706,13 @@ void UFMODAudioComponent::Stop()
 
 void UFMODAudioComponent::Release()
 {
+	ReleaseEventCache();
+}
+
+void UFMODAudioComponent::ReleaseEventCache()
+{
+	ParameterCache.Empty();
+	bDefaultParameterValuesCached = false;
 	if (StudioInstance)
 	{
 		LowPass = nullptr;

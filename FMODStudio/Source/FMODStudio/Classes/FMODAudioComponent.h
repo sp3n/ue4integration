@@ -147,7 +147,7 @@ class FMODSTUDIO_API UFMODAudioComponent : public USceneComponent
 	UFUNCTION(BlueprintCallable, Category="Audio|FMOD|Components")
 	void Stop();
 
-	UFUNCTION(BlueprintCallable, Category = "Audio|FMOD|Components")
+	UFUNCTION(BlueprintCallable, Category="Audio|FMOD|Components")
 	void Release();
 
 	/** Trigger a cue in an event */
@@ -274,6 +274,8 @@ private:
 #if WITH_EDITORONLY_DATA
 	void UpdateSpriteTexture();
 #endif
+
+	void ReleaseEventCache();
 	
 	// Settings for ambient volume effects
 	double InteriorLastUpdateTime; 
