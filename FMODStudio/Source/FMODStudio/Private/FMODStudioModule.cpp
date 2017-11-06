@@ -2,6 +2,7 @@
 
 #include "FMODStudioPrivatePCH.h"
 
+#include "Async.h"
 #include "FMODSettings.h"
 #include "FMODStudioModule.h"
 #include "FMODAudioComponent.h"
@@ -118,13 +119,17 @@ public:
 		bAllowLiveUpdate(true),
 		LowLevelLibHandle(nullptr),
 		StudioLibHandle(nullptr),
-		bBanksLoaded(false)
+		bBanksLoaded(false),
+		bMixerPaused(false)
 	{
 		for (int i = 0; i < EFMODSystemContext::Max; ++i)
 		{
 			StudioSystem[i] = nullptr;
 		}
 	}
+
+	void HandleApplicationWillDeactivate() { AsyncTask(ENamedThreads::GameThread, [&]() { SetSystemPaused(true); }); }
+	void HandleApplicationHasReactivated() { AsyncTask(ENamedThreads::GameThread, [&]() { SetSystemPaused(false); }); }
 
 	virtual void StartupModule() override;
 	virtual void PostLoadCallback() override;
@@ -261,6 +266,8 @@ public:
 	void* LowLevelLibHandle;
 	void* StudioLibHandle;
 
+	/** True if the mixer has been paused by application deactivation */
+	bool bMixerPaused;
 };
 
 IMPLEMENT_MODULE(FFMODStudioModule, FMODStudio)
@@ -302,7 +309,7 @@ bool FFMODStudioModule::LoadPlugin(const TCHAR* ShortName)
 
 			UE_LOG(LogFMOD, Log, TEXT("Trying to load plugin file at location: %s"), *PluginPath);
 
-#if PLATFORM_UWP
+#if defined(PLATFORM_UWP) && PLATFORM_UWP
 			FPaths::MakePathRelativeTo(PluginPath, *(FPaths::RootDir() + TEXT("/")));
 #endif
 
@@ -361,7 +368,7 @@ FString FFMODStudioModule::GetDllPath(const TCHAR* ShortName, bool bExplicitPath
 	#else
 		return FString::Printf(TEXT("%s/Win32/%s.dll"), *BaseLibPath, ShortName);
 	#endif
-#elif PLATFORM_UWP
+#elif defined(PLATFORM_UWP) && PLATFORM_UWP
 		return FString::Printf(TEXT("%s/UWP64/%s.dll"), *BaseLibPath, ShortName);
 #else
 	UE_LOG(LogFMOD, Error, TEXT("Unsupported platform for dynamic libs"));
@@ -397,7 +404,7 @@ bool FFMODStudioModule::LoadLibraries()
 
 #if PLATFORM_WINDOWS && PLATFORM_64BITS
 	ConfigName += TEXT("64");
-#elif PLATFORM_UWP
+#elif defined(PLATFORM_UWP) && PLATFORM_UWP
 	ConfigName += TEXT("_X64");
 #endif
 
@@ -598,6 +605,10 @@ void FFMODStudioModule::CreateStudioSystem(EFMODSystemContext::Type Type)
 			if (!PluginName.IsEmpty())
 				LoadPlugin(*PluginName);
 		}
+		
+		// Add interrupt callbacks for Mobile
+		FCoreDelegates::ApplicationWillDeactivateDelegate.AddRaw(this, &FFMODStudioModule::HandleApplicationWillDeactivate);
+		FCoreDelegates::ApplicationHasReactivatedDelegate.AddRaw(this, &FFMODStudioModule::HandleApplicationHasReactivated);
 	}
 }
 
@@ -987,11 +998,28 @@ void FFMODStudioModule::SetSystemPaused(bool paused)
 {
 	if (StudioSystem[EFMODSystemContext::Runtime])
 	{
-		FMOD::System* LowLevelSystem = nullptr;
-		verifyfmod(StudioSystem[EFMODSystemContext::Runtime]->getLowLevelSystem(&LowLevelSystem));
-		FMOD::ChannelGroup* MasterChannelGroup = nullptr;
-		verifyfmod(LowLevelSystem->getMasterChannelGroup(&MasterChannelGroup));
-		verifyfmod(MasterChannelGroup->setPaused(paused));
+		if (bMixerPaused != paused)
+		{
+			FMOD::System* LowLevelSystem = nullptr;
+			verifyfmod(StudioSystem[EFMODSystemContext::Runtime]->getLowLevelSystem(&LowLevelSystem));
+
+			// Resume mixer before making calls for Android in particular
+			if (!paused)
+			{
+				LowLevelSystem->mixerResume();
+			}
+
+			FMOD::ChannelGroup* MasterChannelGroup = nullptr;
+			verifyfmod(LowLevelSystem->getMasterChannelGroup(&MasterChannelGroup));
+			verifyfmod(MasterChannelGroup->setPaused(paused));
+
+			if (paused)
+			{
+				LowLevelSystem->mixerSuspend();
+			}
+		}
+
+		bMixerPaused = paused;
 	}
 }
 
