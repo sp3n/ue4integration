@@ -15,40 +15,40 @@ TSharedPtr<FSlateStyleSet> FFMODStudioStyle::StyleInstance = NULL;
 
 void FFMODStudioStyle::Initialize()
 {
-	if (!StyleInstance.IsValid())
-	{
-		StyleInstance = Create();
-	}
+    if (!StyleInstance.IsValid())
+    {
+        StyleInstance = Create();
+    }
 
-	SetStyle(StyleInstance.ToSharedRef());
+    SetStyle(StyleInstance.ToSharedRef());
 }
 
 void FFMODStudioStyle::Shutdown()
 {
-	ResetToDefault();
-	ensure(StyleInstance.IsUnique());
-	StyleInstance.Reset();
+    ResetToDefault();
+    ensure(StyleInstance.IsUnique());
+    StyleInstance.Reset();
 }
 
 TSharedRef<FSlateStyleSet> FFMODStudioStyle::Create()
 {
-	IEditorStyleModule& EditorStyle = FModuleManager::LoadModuleChecked<IEditorStyleModule>(TEXT("EditorStyle"));
-	TSharedRef< FSlateStyleSet > StyleRef = EditorStyle.CreateEditorStyleInstance();
-	FSlateStyleSet& Style = StyleRef.Get();
+    IEditorStyleModule &EditorStyle = FModuleManager::LoadModuleChecked<IEditorStyleModule>(TEXT("EditorStyle"));
+    TSharedRef<FSlateStyleSet> StyleRef = EditorStyle.CreateEditorStyleInstance();
+    FSlateStyleSet &Style = StyleRef.Get();
 
-	const FVector2D Icon20x20(20.0f, 20.0f);
-	const FVector2D Icon40x40(40.0f, 40.0f);
-	
-	Style.Set( "ClassIcon.FMODAmbientSound", new IMAGE_BRUSH( "Icons/AssetIcons/AmbientSound_16x",  FVector2D(16.0f, 16.0f) ) );
-	Style.Set( "ClassThumbnail.FMODAmbientSound", new IMAGE_BRUSH( "Icons/AssetIcons/AmbientSound_64x", FVector2D(64.0f, 64.0f)  ) );
+    const FVector2D Icon20x20(20.0f, 20.0f);
+    const FVector2D Icon40x40(40.0f, 40.0f);
 
-	Style.Set( "ClassIcon.FMODAudioComponent", new IMAGE_BRUSH( "Icons/ActorIcons/SoundActor_16x",  FVector2D(16.0f, 16.0f) ) );
-	//Style.Set( "ClassThumbnail.FMODAudioComponent", new IMAGE_BRUSH( "Icons/ActorIcons/SoundActor_64x",  FVector2D(64.0f, 64.0f) ) );
+    Style.Set("ClassIcon.FMODAmbientSound", new IMAGE_BRUSH("Icons/AssetIcons/AmbientSound_16x", FVector2D(16.0f, 16.0f)));
+    Style.Set("ClassThumbnail.FMODAmbientSound", new IMAGE_BRUSH("Icons/AssetIcons/AmbientSound_64x", FVector2D(64.0f, 64.0f)));
 
-	Style.Set( "ClassIcon.FMODAsset", new IMAGE_BRUSH( "Icons/ActorIcons/SoundActor_16x", FVector2D(16.0f,16.0f)  ) );
-	//Style.Set( "ClassThumbnail.FMODAsset", new IMAGE_BRUSH( "Icons/ActorIcons/SoundActor_64x", FVector2D(64.0f, 64.0f)  ) );
+    Style.Set("ClassIcon.FMODAudioComponent", new IMAGE_BRUSH("Icons/ActorIcons/SoundActor_16x", FVector2D(16.0f, 16.0f)));
+    //Style.Set( "ClassThumbnail.FMODAudioComponent", new IMAGE_BRUSH( "Icons/ActorIcons/SoundActor_64x",  FVector2D(64.0f, 64.0f) ) );
 
-	return StyleRef;
+    Style.Set("ClassIcon.FMODAsset", new IMAGE_BRUSH("Icons/ActorIcons/SoundActor_16x", FVector2D(16.0f, 16.0f)));
+    //Style.Set( "ClassThumbnail.FMODAsset", new IMAGE_BRUSH( "Icons/ActorIcons/SoundActor_64x", FVector2D(64.0f, 64.0f)  ) );
+
+    return StyleRef;
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -3,13 +3,12 @@
 #include "FMODSnapshot.h"
 #include "FMODStudioModule.h"
 
-UFMODSnapshot::UFMODSnapshot(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+UFMODSnapshot::UFMODSnapshot(const FObjectInitializer &ObjectInitializer)
+    : Super(ObjectInitializer)
 {
 }
 
 FString UFMODSnapshot::GetDesc()
 {
-	return FString::Printf( TEXT( "Snapshot %s" ), *AssetGuid.ToString(EGuidFormats::DigitsWithHyphensInBraces) );
+    return FString::Printf(TEXT("Snapshot %s"), *AssetGuid.ToString(EGuidFormats::DigitsWithHyphensInBraces));
 }
-

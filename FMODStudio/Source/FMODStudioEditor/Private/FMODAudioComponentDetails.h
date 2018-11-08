@@ -9,16 +9,16 @@
 class FFMODAudioComponentDetails : public IDetailCustomization
 {
 public:
-	/** Makes a new instance of this detail layout class for a specific detail view requesting it */
-	static TSharedRef<IDetailCustomization> MakeInstance();
+    /** Makes a new instance of this detail layout class for a specific detail view requesting it */
+    static TSharedRef<IDetailCustomization> MakeInstance();
 
 private:
-	/** IDetailCustomization interface */
-	virtual void CustomizeDetails(IDetailLayoutBuilder& DetailBuilder) override;
+    /** IDetailCustomization interface */
+    virtual void CustomizeDetails(IDetailLayoutBuilder &DetailBuilder) override;
 
-	FReply OnEditSoundClicked();
-	FReply OnPlaySoundClicked();
-	FReply OnStopSoundClicked();
+    FReply OnEditSoundClicked();
+    FReply OnPlaySoundClicked();
+    FReply OnStopSoundClicked();
 
-	TWeakObjectPtr<class UFMODAudioComponent> AudioComponent;
+    TWeakObjectPtr<class UFMODAudioComponent> AudioComponent;
 };

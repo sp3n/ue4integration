@@ -9,20 +9,20 @@
 class FFMODBankUpdateNotifier
 {
 public:
-	FFMODBankUpdateNotifier();
+    FFMODBankUpdateNotifier();
 
-	void SetFilePath(const FString& InPath);
-	void Update();
+    void SetFilePath(const FString &InPath);
+    void Update();
 
-	void EnableUpdate(bool bEnable);
+    void EnableUpdate(bool bEnable);
 
-	FSimpleMulticastDelegate BanksUpdatedEvent;
+    FSimpleMulticastDelegate BanksUpdatedEvent;
 
 private:
-	void Refresh();
+    void Refresh();
 
-	bool bUpdateEnabled;
-	FString FilePath;
-	FDateTime NextRefreshTime;
-	FDateTime FileTime;
+    bool bUpdateEnabled;
+    FString FilePath;
+    FDateTime NextRefreshTime;
+    FDateTime FileTime;
 };

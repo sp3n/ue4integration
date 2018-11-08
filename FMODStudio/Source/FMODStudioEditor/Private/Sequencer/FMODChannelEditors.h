@@ -15,22 +15,29 @@
 #include "FMODChannelEditors.generated.h"
 
 /** Key editor overrides */
-bool CanCreateKeyEditor(const FMovieSceneByteChannel* Channel);
-TSharedRef<SWidget> CreateKeyEditor(const TMovieSceneChannelHandle<FMovieSceneByteChannel>& Channel, UMovieSceneSection* Section, const FGuid& InObjectBindingID, TWeakPtr<FTrackInstancePropertyBindings> PropertyBindings, TWeakPtr<ISequencer> InSequencer);
+bool CanCreateKeyEditor(const FMovieSceneByteChannel *Channel);
+TSharedRef<SWidget> CreateKeyEditor(const TMovieSceneChannelHandle<FMovieSceneByteChannel> &Channel, UMovieSceneSection *Section,
+    const FGuid &InObjectBindingID, TWeakPtr<FTrackInstancePropertyBindings> PropertyBindings, TWeakPtr<ISequencer> InSequencer);
 
 /** KeyStruct overrides */
-TSharedPtr<FStructOnScope> GetKeyStruct(const TMovieSceneChannelHandle<FFMODEventControlChannel>& Channel, FKeyHandle InHandle);
+TSharedPtr<FStructOnScope> GetKeyStruct(const TMovieSceneChannelHandle<FFMODEventControlChannel> &Channel, FKeyHandle InHandle);
 
 /** Key drawing overrides */
-void DrawKeys(FFMODEventControlChannel* Channel, TArrayView<const FKeyHandle> InKeyHandles, TArrayView<FKeyDrawParams> OutKeyDrawParams);
-
+void DrawKeys(FFMODEventControlChannel *Channel, TArrayView<const FKeyHandle> InKeyHandles, TArrayView<FKeyDrawParams> OutKeyDrawParams);
 
 USTRUCT()
 struct FFMODEventControlKeyStruct : public FMovieSceneKeyTimeStruct
 {
     GENERATED_BODY();
 
-    UPROPERTY(EditAnywhere, Category="Key")
+    UPROPERTY(EditAnywhere, Category = "Key")
     EFMODEventControlKey Value;
 };
-template<> struct TStructOpsTypeTraits<FFMODEventControlKeyStruct> : public TStructOpsTypeTraitsBase2<FFMODEventControlKeyStruct> { enum { WithCopy = false }; };
+template <>
+struct TStructOpsTypeTraits<FFMODEventControlKeyStruct> : public TStructOpsTypeTraitsBase2<FFMODEventControlKeyStruct>
+{
+    enum
+    {
+        WithCopy = false
+    };
+};

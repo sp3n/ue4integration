@@ -3,19 +3,18 @@
 #include "FMODVCA.h"
 #include "FMODStudioModule.h"
 
-UFMODVCA::UFMODVCA(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+UFMODVCA::UFMODVCA(const FObjectInitializer &ObjectInitializer)
+    : Super(ObjectInitializer)
 {
 }
 
 /** Get tags to show in content view */
-void UFMODVCA::GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const
+void UFMODVCA::GetAssetRegistryTags(TArray<FAssetRegistryTag> &OutTags) const
 {
-	Super::GetAssetRegistryTags(OutTags);
+    Super::GetAssetRegistryTags(OutTags);
 }
 
 FString UFMODVCA::GetDesc()
 {
-	return FString::Printf( TEXT( "VCA %s" ), *AssetGuid.ToString(EGuidFormats::DigitsWithHyphensInBraces) );
+    return FString::Printf(TEXT("VCA %s"), *AssetGuid.ToString(EGuidFormats::DigitsWithHyphensInBraces));
 }
-

@@ -14,21 +14,16 @@ public:
     SLATE_BEGIN_ARGS(SFMODEventControlKeyEditor) {}
     SLATE_END_ARGS();
 
-    void Construct(const FArguments& InArgs, TMovieSceneChannelHandle<FMovieSceneByteChannel> InChannelHandle,
-        TWeakObjectPtr<UMovieSceneSection> InWeakSection, TWeakPtr<ISequencer> InWeakSequencer, UEnum* InEnum)
+    void Construct(const FArguments &InArgs, TMovieSceneChannelHandle<FMovieSceneByteChannel> InChannelHandle,
+        TWeakObjectPtr<UMovieSceneSection> InWeakSection, TWeakPtr<ISequencer> InWeakSequencer, UEnum *InEnum)
     {
         ChannelHandle = InChannelHandle;
         WeakSection = InWeakSection;
         WeakSequencer = InWeakSequencer;
 
-        ChildSlot
-        [
-            MovieSceneToolHelpers::MakeEnumComboBox(
-                InEnum,
-                TAttribute<int32>::Create(TAttribute<int32>::FGetter::CreateSP(this, &SFMODEventControlKeyEditor::OnGetCurrentValueAsInt)),
-                FOnEnumSelectionChanged::CreateSP(this, &SFMODEventControlKeyEditor::OnChangeKey)
-            )
-        ];
+        ChildSlot[MovieSceneToolHelpers::MakeEnumComboBox(InEnum,
+            TAttribute<int32>::Create(TAttribute<int32>::FGetter::CreateSP(this, &SFMODEventControlKeyEditor::OnGetCurrentValueAsInt)),
+            FOnEnumSelectionChanged::CreateSP(this, &SFMODEventControlKeyEditor::OnChangeKey))];
     }
 
 private:
@@ -36,9 +31,9 @@ private:
     {
         using namespace MovieScene;
 
-        FMovieSceneByteChannel* Channel = ChannelHandle.Get();
-        ISequencer* Sequencer = WeakSequencer.Pin().Get();
-        UMovieSceneSection* OwningSection = WeakSection.Get();
+        FMovieSceneByteChannel *Channel = ChannelHandle.Get();
+        ISequencer *Sequencer = WeakSequencer.Pin().Get();
+        UMovieSceneSection *OwningSection = WeakSection.Get();
         uint8 Result = 0;
 
         if (Channel && Sequencer && OwningSection)
@@ -55,7 +50,7 @@ private:
         using namespace MovieScene;
         using namespace Sequencer;
 
-        UMovieSceneSection* OwningSection = WeakSection.Get();
+        UMovieSceneSection *OwningSection = WeakSection.Get();
         if (!OwningSection)
         {
             return;
@@ -63,8 +58,8 @@ private:
 
         OwningSection->SetFlags(RF_Transactional);
 
-        FMovieSceneByteChannel* Channel = ChannelHandle.Get();
-        ISequencer* Sequencer = WeakSequencer.Pin().Get();
+        FMovieSceneByteChannel *Channel = ChannelHandle.Get();
+        ISequencer *Sequencer = WeakSequencer.Pin().Get();
 
         if (!OwningSection->TryModify() || !Channel || !Sequencer)
         {
@@ -72,7 +67,7 @@ private:
         }
 
         const FFrameNumber CurrentTime = Sequencer->GetLocalTime().Time.FloorToFrame();
-        const bool  bAutoSetTrackDefaults = Sequencer->GetAutoSetTrackDefaults();
+        const bool bAutoSetTrackDefaults = Sequencer->GetAutoSetTrackDefaults();
 
         EMovieSceneKeyInterpolation Interpolation = Sequencer->GetKeyInterpolation();
 
@@ -96,7 +91,7 @@ private:
 
             if (bHasAnyKeys)
             {
-                TRange<FFrameNumber> KeyRange     = TRange<FFrameNumber>(CurrentTime);
+                TRange<FFrameNumber> KeyRange = TRange<FFrameNumber>(CurrentTime);
                 TRange<FFrameNumber> SectionRange = OwningSection->GetRange();
 
                 if (!SectionRange.Contains(KeyRange))
@@ -118,7 +113,7 @@ private:
     {
         FScopedTransaction Transaction(FText::FromString("Set FMOD Event Control Key Value"));
         SetValue(Selection);
-        if (ISequencer* Sequencer = WeakSequencer.Pin().Get())
+        if (ISequencer *Sequencer = WeakSequencer.Pin().Get())
         {
             Sequencer->NotifyMovieSceneDataChanged(EMovieSceneDataChangeType::TrackValueChangedRefreshImmediately);
         }
@@ -129,27 +124,28 @@ private:
     TWeakPtr<ISequencer> WeakSequencer;
 };
 
-bool CanCreateKeyEditor(const FMovieSceneByteChannel* Channel)
+bool CanCreateKeyEditor(const FMovieSceneByteChannel *Channel)
 {
     return true;
 }
 
-TSharedRef<SWidget> CreateKeyEditor(const TMovieSceneChannelHandle<FMovieSceneByteChannel>& Channel, UMovieSceneSection* Section, const FGuid& InObjectBindingID, TWeakPtr<FTrackInstancePropertyBindings> PropertyBindings, TWeakPtr<ISequencer> InSequencer)
+TSharedRef<SWidget> CreateKeyEditor(const TMovieSceneChannelHandle<FMovieSceneByteChannel> &Channel, UMovieSceneSection *Section,
+    const FGuid &InObjectBindingID, TWeakPtr<FTrackInstancePropertyBindings> PropertyBindings, TWeakPtr<ISequencer> InSequencer)
 {
-    const FMovieSceneByteChannel* RawChannel = Channel.Get();
+    const FMovieSceneByteChannel *RawChannel = Channel.Get();
 
     if (!RawChannel)
     {
         return SNullWidget::NullWidget;
     }
 
-    UEnum* Enum = RawChannel->GetEnum();
+    UEnum *Enum = RawChannel->GetEnum();
     return SNew(SFMODEventControlKeyEditor, Channel, Section, InSequencer, Enum);
 }
 
-TSharedPtr<FStructOnScope> GetKeyStruct(const TMovieSceneChannelHandle<FFMODEventControlChannel>& ChannelHandle, FKeyHandle InHandle)
+TSharedPtr<FStructOnScope> GetKeyStruct(const TMovieSceneChannelHandle<FFMODEventControlChannel> &ChannelHandle, FKeyHandle InHandle)
 {
-    FFMODEventControlChannel* Channel = ChannelHandle.Get();
+    FFMODEventControlChannel *Channel = ChannelHandle.Get();
     if (!Channel)
     {
         return nullptr;
@@ -164,24 +160,24 @@ TSharedPtr<FStructOnScope> GetKeyStruct(const TMovieSceneChannelHandle<FFMODEven
     }
 
     TSharedPtr<FStructOnScope> KeyStruct = MakeShared<FStructOnScope>(FFMODEventControlKeyStruct::StaticStruct());
-    FFMODEventControlKeyStruct* Struct = reinterpret_cast<FFMODEventControlKeyStruct*>(KeyStruct->GetStructMemory());
+    FFMODEventControlKeyStruct *Struct = reinterpret_cast<FFMODEventControlKeyStruct *>(KeyStruct->GetStructMemory());
 
-    Struct->Time  = ChannelData.GetTimes()[KeyIndex];
+    Struct->Time = ChannelData.GetTimes()[KeyIndex];
     Struct->Value = (EFMODEventControlKey)ChannelData.GetValues()[KeyIndex];
 
     Struct->KeyStructInterop.Add(FMovieSceneChannelValueHelper(ChannelHandle, &Struct->Value, MakeTuple(InHandle, Struct->Time)));
     return KeyStruct;
 }
 
-void DrawKeys(FFMODEventControlChannel* Channel, TArrayView<const FKeyHandle> InKeyHandles, TArrayView<FKeyDrawParams> OutKeyDrawParams)
+void DrawKeys(FFMODEventControlChannel *Channel, TArrayView<const FKeyHandle> InKeyHandles, TArrayView<FKeyDrawParams> OutKeyDrawParams)
 {
     static const FName KeyLeftBrushName("Sequencer.KeyLeft");
     static const FName KeyRightBrushName("Sequencer.KeyRight");
     static const FName KeyDiamondBrushName("Sequencer.KeyDiamond");
 
-    const FSlateBrush* LeftKeyBrush = FEditorStyle::GetBrush(KeyLeftBrushName);
-    const FSlateBrush* RightKeyBrush = FEditorStyle::GetBrush(KeyRightBrushName);
-    const FSlateBrush* DiamondBrush = FEditorStyle::GetBrush(KeyDiamondBrushName);
+    const FSlateBrush *LeftKeyBrush = FEditorStyle::GetBrush(KeyLeftBrushName);
+    const FSlateBrush *RightKeyBrush = FEditorStyle::GetBrush(KeyRightBrushName);
+    const FSlateBrush *DiamondBrush = FEditorStyle::GetBrush(KeyDiamondBrushName);
 
     TMovieSceneChannelData<uint8> ChannelData = Channel->GetData();
 
@@ -193,15 +189,15 @@ void DrawKeys(FFMODEventControlChannel* Channel, TArrayView<const FKeyHandle> In
         Params.BorderBrush = Params.FillBrush = DiamondBrush;
 
         const int32 KeyIndex = ChannelData.GetIndex(Handle);
-        if ( KeyIndex != INDEX_NONE )
+        if (KeyIndex != INDEX_NONE)
         {
             const EFMODEventControlKey Value = (EFMODEventControlKey)ChannelData.GetValues()[KeyIndex];
-            if ( Value == EFMODEventControlKey::Play )
+            if (Value == EFMODEventControlKey::Play)
             {
                 Params.BorderBrush = Params.FillBrush = LeftKeyBrush;
                 Params.FillOffset = FVector2D(-1.0f, 1.0f);
             }
-            else if ( Value == EFMODEventControlKey::Stop )
+            else if (Value == EFMODEventControlKey::Stop)
             {
                 Params.BorderBrush = Params.FillBrush = RightKeyBrush;
                 Params.FillOffset = FVector2D(1.0f, 1.0f);

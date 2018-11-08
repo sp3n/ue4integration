@@ -26,17 +26,22 @@ struct FFMODEventControlChannel : public FMovieSceneByteChannel
     FFMODEventControlChannel();
 };
 
-template<>
+template <>
 struct TStructOpsTypeTraits<FFMODEventControlChannel> : public TStructOpsTypeTraitsBase2<FFMODEventControlChannel>
 {
-    enum { WithSerializeFromMismatchedTag = true };
+    enum
+    {
+        WithSerializeFromMismatchedTag = true
+    };
 };
 
-
-template<>
+template <>
 struct TMovieSceneChannelTraits<FFMODEventControlChannel> : TMovieSceneChannelTraitsBase<FFMODEventControlChannel>
 {
-    enum { SupportsDefaults = false };
+    enum
+    {
+        SupportsDefaults = false
+    };
 
 #if WITH_EDITOR
 
@@ -48,13 +53,11 @@ struct TMovieSceneChannelTraits<FFMODEventControlChannel> : TMovieSceneChannelTr
 
 /** FMOD Event control section */
 UCLASS(MinimalAPI)
-class UFMODEventControlSection
-    : public UMovieSceneSection
+class UFMODEventControlSection : public UMovieSceneSection
 {
     GENERATED_UCLASS_BODY()
 
 public:
-
     /** Channel containing the event control keys */
     UPROPERTY()
     FFMODEventControlChannel ControlKeys;
@@ -64,8 +67,7 @@ protected:
     virtual FMovieSceneEvalTemplatePtr GenerateTemplate() const override;
 };
 
-
-inline void AssignValue(FFMODEventControlChannel* InChannel, FKeyHandle InKeyHandle, EFMODEventControlKey InValue)
+inline void AssignValue(FFMODEventControlChannel *InChannel, FKeyHandle InKeyHandle, EFMODEventControlKey InValue)
 {
     TMovieSceneChannelData<uint8> ChannelData = InChannel->GetData();
     int32 ValueIndex = ChannelData.GetIndex(InKeyHandle);
@@ -76,7 +78,7 @@ inline void AssignValue(FFMODEventControlChannel* InChannel, FKeyHandle InKeyHan
     }
 }
 
-inline bool EvaluateChannel(const FFMODEventControlChannel* InChannel, FFrameTime InTime, EFMODEventControlKey& OutValue)
+inline bool EvaluateChannel(const FFMODEventControlChannel *InChannel, FFrameTime InTime, EFMODEventControlKey &OutValue)
 {
     uint8 RawValue = 0;
     if (InChannel->Evaluate(InTime, RawValue))

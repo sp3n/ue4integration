@@ -3,24 +3,17 @@
 #include "FMODAsset.h"
 #include "FMODStudioModule.h"
 
-static const TCHAR* FMODAssetTypeStrings[] =
-{
-	TEXT("Bank"),
-	TEXT("Event"),
-	TEXT("VCA"),
-	TEXT("Bus"),
-	TEXT("Invalid")
-};
+static const TCHAR *FMODAssetTypeStrings[] = { TEXT("Bank"), TEXT("Event"), TEXT("VCA"), TEXT("Bus"), TEXT("Invalid") };
 
-UFMODAsset::UFMODAsset(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+UFMODAsset::UFMODAsset(const FObjectInitializer &ObjectInitializer)
+    : Super(ObjectInitializer)
 {
 }
 
 /** Get tags to show in content view */
-void UFMODAsset::GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const
+void UFMODAsset::GetAssetRegistryTags(TArray<FAssetRegistryTag> &OutTags) const
 {
-	Super::GetAssetRegistryTags(OutTags);
-	OutTags.Add(UObject::FAssetRegistryTag("Guid", AssetGuid.ToString(EGuidFormats::DigitsWithHyphensInBraces), UObject::FAssetRegistryTag::TT_Alphabetical));
+    Super::GetAssetRegistryTags(OutTags);
+    OutTags.Add(
+        UObject::FAssetRegistryTag("Guid", AssetGuid.ToString(EGuidFormats::DigitsWithHyphensInBraces), UObject::FAssetRegistryTag::TT_Alphabetical));
 }
-

@@ -26,37 +26,33 @@ public:
     void AddControlKey(const FGuid ObjectGuid);
 
     // Begin ISequencerTrackEditor interface
-    virtual void BuildObjectBindingTrackMenu(FMenuBuilder& MenuBuilder, const FGuid& ObjectBinding, const UClass* ObjectClass) override;
-    virtual TSharedRef<ISequencerSection> MakeSectionInterface(UMovieSceneSection& SectionObject, UMovieSceneTrack& Track, FGuid ObjectBinding) override;
+    virtual void BuildObjectBindingTrackMenu(FMenuBuilder &MenuBuilder, const FGuid &ObjectBinding, const UClass *ObjectClass) override;
+    virtual TSharedRef<ISequencerSection> MakeSectionInterface(
+        UMovieSceneSection &SectionObject, UMovieSceneTrack &Track, FGuid ObjectBinding) override;
     virtual bool SupportsType(TSubclassOf<UMovieSceneTrack> Type) const override;
     // End ISequencerTrackEditor interface
 
 private:
-
     /** Delegate for AnimatablePropertyChanged in AddKey. */
-    virtual FKeyPropertyResult AddKeyInternal(FFrameNumber KeyTime, UObject* Object);
+    virtual FKeyPropertyResult AddKeyInternal(FFrameNumber KeyTime, UObject *Object);
 };
 
-
 /** Class for event control sections. */
-class FFMODEventControlSection
-    : public ISequencerSection
-    , public TSharedFromThis<FFMODEventControlSection>
+class FFMODEventControlSection : public ISequencerSection, public TSharedFromThis<FFMODEventControlSection>
 {
 public:
-
-    FFMODEventControlSection(UMovieSceneSection& InSection, TSharedRef<ISequencer> InOwningSequencer);
+    FFMODEventControlSection(UMovieSceneSection &InSection, TSharedRef<ISequencer> InOwningSequencer);
 
     // Begin ISequencerSection interface
-    virtual UMovieSceneSection* GetSectionObject() override;
+    virtual UMovieSceneSection *GetSectionObject() override;
     virtual float GetSectionHeight() const override;
-    virtual int32 OnPaintSection(FSequencerSectionPainter& InPainter) const override;
+    virtual int32 OnPaintSection(FSequencerSectionPainter &InPainter) const override;
     virtual bool SectionIsResizable() const override { return false; }
     // End ISequencerSection interface
 
 private:
     /** The section we are visualizing. */
-    UMovieSceneSection& Section;
+    UMovieSceneSection &Section;
 
     /** The sequencer that owns this section */
     TWeakPtr<ISequencer> OwningSequencerPtr;

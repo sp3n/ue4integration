@@ -2,14 +2,13 @@
 
 #include "FMODSnapshotReverb.h"
 
-UFMODSnapshotReverb::UFMODSnapshotReverb(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+UFMODSnapshotReverb::UFMODSnapshotReverb(const FObjectInitializer &ObjectInitializer)
+    : Super(ObjectInitializer)
 {
 }
 
 #if WITH_EDITORONLY_DATA
-void UFMODSnapshotReverb::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+void UFMODSnapshotReverb::PostEditChangeProperty(FPropertyChangedEvent &PropertyChangedEvent)
 {
-
 }
 #endif // EDITORONLY_DATA

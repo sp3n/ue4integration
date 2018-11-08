@@ -11,14 +11,11 @@
 UCLASS()
 class FMODSTUDIO_API UFMODBus : public UFMODAsset
 {
-	GENERATED_UCLASS_BODY()
+    GENERATED_UCLASS_BODY()
 
-	/** Get tags to show in content view */
-	virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+    /** Get tags to show in content view */
+    virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag> &OutTags) const override;
 
-	/** Descriptive name */
-	virtual FString GetDesc() override;
-
+    /** Descriptive name */
+    virtual FString GetDesc() override;
 };
-
-

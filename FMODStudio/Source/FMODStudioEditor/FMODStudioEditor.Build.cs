@@ -2,8 +2,8 @@
 
 namespace UnrealBuildTool.Rules
 {
-	public class FMODStudioEditor : ModuleRules
-	{
+    public class FMODStudioEditor : ModuleRules
+    {
     #if WITH_FORWARDED_MODULE_RULES_CTOR
         public FMODStudioEditor(ReadOnlyTargetRules Target) : base(Target)
     #else
@@ -12,54 +12,54 @@ namespace UnrealBuildTool.Rules
         {
             PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
             PrivatePCHHeaderFile = "Private/FMODStudioEditorPrivatePCH.h";
-			
-			bFasterWithoutUnity = true;
+            
+            bFasterWithoutUnity = true;
 
-			PublicIncludePaths.AddRange(
-				new string[] {
+            PublicIncludePaths.AddRange(
+                new string[] {
                 }
                 );
 
-			PrivateIncludePaths.AddRange(
-				new string[] {
-					"FMODStudioEditor/Private",
-					"FMODStudio/Private",
+            PrivateIncludePaths.AddRange(
+                new string[] {
+                    "FMODStudioEditor/Private",
+                    "FMODStudio/Private",
                     "FMODStudio/Public/FMOD",
                 }
                 );
 
-			PublicDependencyModuleNames.AddRange(
-				new string[]
-				{
-					"Core",
-					"CoreUObject",
-					"Engine",
-					"FMODStudio",
+            PublicDependencyModuleNames.AddRange(
+                new string[]
+                {
+                    "Core",
+                    "CoreUObject",
+                    "Engine",
+                    "FMODStudio",
                     "InputCore",
                     "UnrealEd",
                     "Sequencer"
                 }
                 );
 
-			PrivateDependencyModuleNames.AddRange(
-				new string[]
-				{
-					"Slate",
-					"SlateCore",
-					"Settings",
-					"EditorStyle",
-					"LevelEditor",
-					"AssetTools",
-					"AssetRegistry",
-					"PropertyEditor",
-					"WorkspaceMenuStructure",
-					"Sockets",
+            PrivateDependencyModuleNames.AddRange(
+                new string[]
+                {
+                    "Slate",
+                    "SlateCore",
+                    "Settings",
+                    "EditorStyle",
+                    "LevelEditor",
+                    "AssetTools",
+                    "AssetRegistry",
+                    "PropertyEditor",
+                    "WorkspaceMenuStructure",
+                    "Sockets",
                     "LevelSequence",
                     "MovieScene",
                     "MovieSceneTracks",
                     "MovieSceneTools"
                 }
                 );
-		}
-	}
+        }
+    }
 }

@@ -8,19 +8,19 @@
 
 struct FPlayingToken : IMovieScenePreAnimatedToken
 {
-    FPlayingToken(UObject& InObject)
+    FPlayingToken(UObject &InObject)
     {
         bPlaying = false;
 
-        if (UFMODAudioComponent* AudioComponent = Cast<UFMODAudioComponent>(&InObject))
+        if (UFMODAudioComponent *AudioComponent = Cast<UFMODAudioComponent>(&InObject))
         {
             bPlaying = AudioComponent->IsPlaying();
         }
     }
 
-    virtual void RestoreState(UObject& Object, IMovieScenePlayer& Player) override
+    virtual void RestoreState(UObject &Object, IMovieScenePlayer &Player) override
     {
-        UFMODAudioComponent* AudioComponent = CastChecked<UFMODAudioComponent>(&Object);
+        UFMODAudioComponent *AudioComponent = CastChecked<UFMODAudioComponent>(&Object);
 
         if (AudioComponent)
         {
@@ -41,16 +41,10 @@ private:
 
 struct FPlayingTokenProducer : IMovieScenePreAnimatedTokenProducer
 {
-    static FMovieSceneAnimTypeID GetAnimTypeID() 
-    {
-        return TMovieSceneAnimTypeID<FPlayingTokenProducer>();
-    }
+    static FMovieSceneAnimTypeID GetAnimTypeID() { return TMovieSceneAnimTypeID<FPlayingTokenProducer>(); }
 
 private:
-    virtual IMovieScenePreAnimatedTokenPtr CacheExistingState(UObject& Object) const override
-    {
-        return FPlayingToken(Object);
-    }
+    virtual IMovieScenePreAnimatedTokenPtr CacheExistingState(UObject &Object) const override { return FPlayingToken(Object); }
 };
 
 struct FFMODEventKeyState : IPersistentEvaluationData
@@ -68,15 +62,16 @@ struct FFMODEventControlExecutionToken : IMovieSceneExecutionToken
     }
 
     /** Execute this token, operating on all objects referenced by 'Operand' */
-    virtual void Execute(const FMovieSceneContext& Context, const FMovieSceneEvaluationOperand& Operand, FPersistentEvaluationData& PersistentData, IMovieScenePlayer& Player)
+    virtual void Execute(const FMovieSceneContext &Context, const FMovieSceneEvaluationOperand &Operand, FPersistentEvaluationData &PersistentData,
+        IMovieScenePlayer &Player)
     {
-        for (TWeakObjectPtr<>& WeakObject : Player.FindBoundObjects(Operand))
+        for (TWeakObjectPtr<> &WeakObject : Player.FindBoundObjects(Operand))
         {
-            UFMODAudioComponent* AudioComponent = Cast<UFMODAudioComponent>(WeakObject.Get());
+            UFMODAudioComponent *AudioComponent = Cast<UFMODAudioComponent>(WeakObject.Get());
 
             if (!AudioComponent)
             {
-                AFMODAmbientSound* AmbientSound = Cast<AFMODAmbientSound>(WeakObject.Get());
+                AFMODAmbientSound *AmbientSound = Cast<AFMODAmbientSound>(WeakObject.Get());
                 AudioComponent = AmbientSound ? AmbientSound->AudioComponent : nullptr;
             }
 
@@ -91,7 +86,8 @@ struct FFMODEventControlExecutionToken : IMovieSceneExecutionToken
                         AudioComponent->Stop();
                     }
 
-                    EFMODSystemContext::Type SystemContext = (GWorld && GWorld->WorldType == EWorldType::Editor) ? EFMODSystemContext::Editor : EFMODSystemContext::Runtime;
+                    EFMODSystemContext::Type SystemContext =
+                        (GWorld && GWorld->WorldType == EWorldType::Editor) ? EFMODSystemContext::Editor : EFMODSystemContext::Runtime;
                     AudioComponent->PlayInternal(SystemContext);
                 }
                 else if (EventControlKey == EFMODEventControlKey::Stop)
@@ -106,15 +102,16 @@ struct FFMODEventControlExecutionToken : IMovieSceneExecutionToken
     FFrameTime KeyTime;
 };
 
-FFMODEventControlSectionTemplate::FFMODEventControlSectionTemplate(const UFMODEventControlSection& Section)
+FFMODEventControlSectionTemplate::FFMODEventControlSectionTemplate(const UFMODEventControlSection &Section)
     : ControlKeys(Section.ControlKeys)
 {
 }
 
-void FFMODEventControlSectionTemplate::Evaluate(const FMovieSceneEvaluationOperand& Operand, const FMovieSceneContext& Context, const FPersistentEvaluationData& PersistentData, FMovieSceneExecutionTokens& ExecutionTokens) const
+void FFMODEventControlSectionTemplate::Evaluate(const FMovieSceneEvaluationOperand &Operand, const FMovieSceneContext &Context,
+    const FPersistentEvaluationData &PersistentData, FMovieSceneExecutionTokens &ExecutionTokens) const
 {
-    const bool bPlaying = Context.IsSilent() == false && Context.GetDirection() == EPlayDirection::Forwards && Context.GetRange().Size<FFrameTime>() >= FFrameTime(0) && 
-        Context.GetStatus() == EMovieScenePlayerStatus::Playing;
+    const bool bPlaying = Context.IsSilent() == false && Context.GetDirection() == EPlayDirection::Forwards &&
+                          Context.GetRange().Size<FFrameTime>() >= FFrameTime(0) && Context.GetStatus() == EMovieScenePlayerStatus::Playing;
 
     if (!bPlaying)
     {
@@ -129,7 +126,7 @@ void FFMODEventControlSectionTemplate::Evaluate(const FMovieSceneEvaluationOpera
         TArrayView<const FFrameNumber> Times = ChannelData.GetTimes();
         TArrayView<const uint8> Values = ChannelData.GetValues();
 
-        const int32 LastKeyIndex = Algo::UpperBound(Times, PlaybackRange.GetUpperBoundValue())-1;
+        const int32 LastKeyIndex = Algo::UpperBound(Times, PlaybackRange.GetUpperBoundValue()) - 1;
         if (LastKeyIndex >= 0 && PlaybackRange.Contains(Times[LastKeyIndex]))
         {
             FFMODEventControlExecutionToken NewToken((EFMODEventControlKey)Values[LastKeyIndex], Times[LastKeyIndex]);

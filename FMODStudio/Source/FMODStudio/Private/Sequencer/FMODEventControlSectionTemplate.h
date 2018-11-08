@@ -14,13 +14,13 @@ struct FFMODEventControlSectionTemplate : public FMovieSceneEvalTemplate
     GENERATED_BODY()
 
     FFMODEventControlSectionTemplate() {}
-    FFMODEventControlSectionTemplate(const UFMODEventControlSection& Section);
+    FFMODEventControlSectionTemplate(const UFMODEventControlSection &Section);
 
     UPROPERTY()
     FFMODEventControlChannel ControlKeys;
 
 private:
-
-    virtual UScriptStruct& GetScriptStructImpl() const override { return *StaticStruct(); }
-    virtual void Evaluate(const FMovieSceneEvaluationOperand& Operand, const FMovieSceneContext& Context, const FPersistentEvaluationData& PersistentData, FMovieSceneExecutionTokens& ExecutionTokens) const override;
+    virtual UScriptStruct &GetScriptStructImpl() const override { return *StaticStruct(); }
+    virtual void Evaluate(const FMovieSceneEvaluationOperand &Operand, const FMovieSceneContext &Context,
+        const FPersistentEvaluationData &PersistentData, FMovieSceneExecutionTokens &ExecutionTokens) const override;
 };

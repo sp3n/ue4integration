@@ -10,4 +10,3 @@ FMOD_RESULT F_CALLBACK FMODLogCallback(FMOD_DEBUG_FLAGS flags, const char *file,
 void AcquireFMODFileSystem();
 void ReleaseFMODFileSystem();
 void AttachFMODFileSystem(FMOD::System *system, FGenericPlatformTypes::int32 fileBufferSize);
-

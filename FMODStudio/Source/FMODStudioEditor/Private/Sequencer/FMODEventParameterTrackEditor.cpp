@@ -20,109 +20,101 @@ FFMODEventParameterTrackEditor::FFMODEventParameterTrackEditor(TSharedRef<ISeque
 {
 }
 
-
 TSharedRef<ISequencerTrackEditor> FFMODEventParameterTrackEditor::CreateTrackEditor(TSharedRef<ISequencer> OwningSequencer)
 {
     return MakeShareable(new FFMODEventParameterTrackEditor(OwningSequencer));
 }
 
-
-TSharedRef<ISequencerSection> FFMODEventParameterTrackEditor::MakeSectionInterface(UMovieSceneSection& SectionObject, UMovieSceneTrack& Track, FGuid ObjectBinding)
+TSharedRef<ISequencerSection> FFMODEventParameterTrackEditor::MakeSectionInterface(
+    UMovieSceneSection &SectionObject, UMovieSceneTrack &Track, FGuid ObjectBinding)
 {
-    UMovieSceneParameterSection* ParameterSection = Cast<UMovieSceneParameterSection>(&SectionObject);
+    UMovieSceneParameterSection *ParameterSection = Cast<UMovieSceneParameterSection>(&SectionObject);
     checkf(ParameterSection != nullptr, TEXT("Unsupported section type."));
     return MakeShareable(new FFMODParameterSection(*ParameterSection));
 }
 
-
-TSharedPtr<SWidget> FFMODEventParameterTrackEditor::BuildOutlinerEditWidget(const FGuid& ObjectBinding, UMovieSceneTrack* Track, const FBuildEditWidgetParams& Params)
+TSharedPtr<SWidget> FFMODEventParameterTrackEditor::BuildOutlinerEditWidget(
+    const FGuid &ObjectBinding, UMovieSceneTrack *Track, const FBuildEditWidgetParams &Params)
 {
-    UFMODEventParameterTrack* EventParameterTrack = Cast<UFMODEventParameterTrack>(Track);
-    
+    UFMODEventParameterTrack *EventParameterTrack = Cast<UFMODEventParameterTrack>(Track);
+
     // Create a container edit box
     return FSequencerUtilities::MakeAddButton(LOCTEXT("ParameterText", "Parameter"),
         FOnGetContent::CreateSP(this, &FFMODEventParameterTrackEditor::OnGetAddParameterMenuContent, ObjectBinding, EventParameterTrack),
         Params.NodeIsHovered);
 }
 
-
-void FFMODEventParameterTrackEditor::BuildObjectBindingTrackMenu(FMenuBuilder& MenuBuilder, const FGuid& ObjectBinding, const UClass* ObjectClass)
+void FFMODEventParameterTrackEditor::BuildObjectBindingTrackMenu(FMenuBuilder &MenuBuilder, const FGuid &ObjectBinding, const UClass *ObjectClass)
 {
     if (ObjectClass->IsChildOf(AFMODAmbientSound::StaticClass()) || ObjectClass->IsChildOf(UFMODAudioComponent::StaticClass()))
     {
         const TSharedPtr<ISequencer> ParentSequencer = GetSequencer();
 
-        MenuBuilder.AddMenuEntry(
-            LOCTEXT("AddFMODParameterTrack", "FMOD Event Parameter Track"),
-            LOCTEXT("AddFMODParameterTrackTooltip", "Adds a track for controlling FMOD event parameter values."),
-            FSlateIcon(),
-            FUIAction
-            (
-                FExecuteAction::CreateSP(this, &FFMODEventParameterTrackEditor::AddEventParameterTrack, ObjectBinding),
-                FCanExecuteAction::CreateSP(this, &FFMODEventParameterTrackEditor::CanAddEventParameterTrack, ObjectBinding)
-));
+        MenuBuilder.AddMenuEntry(LOCTEXT("AddFMODParameterTrack", "FMOD Event Parameter Track"),
+            LOCTEXT("AddFMODParameterTrackTooltip", "Adds a track for controlling FMOD event parameter values."), FSlateIcon(),
+            FUIAction(FExecuteAction::CreateSP(this, &FFMODEventParameterTrackEditor::AddEventParameterTrack, ObjectBinding),
+                FCanExecuteAction::CreateSP(this, &FFMODEventParameterTrackEditor::CanAddEventParameterTrack, ObjectBinding)));
     }
 }
-
 
 bool FFMODEventParameterTrackEditor::SupportsType(TSubclassOf<UMovieSceneTrack> Type) const
 {
     return Type == UFMODEventParameterTrack::StaticClass();
 }
 
-
-TSharedRef<SWidget> FFMODEventParameterTrackEditor::OnGetAddParameterMenuContent(FGuid ObjectBinding, UFMODEventParameterTrack* EventParameterTrack)
+TSharedRef<SWidget> FFMODEventParameterTrackEditor::OnGetAddParameterMenuContent(FGuid ObjectBinding, UFMODEventParameterTrack *EventParameterTrack)
 {
     TSharedPtr<ISequencer> SequencerPtr = GetSequencer();
-    AFMODAmbientSound* Sound = SequencerPtr.IsValid() ? Cast<AFMODAmbientSound>(SequencerPtr->FindSpawnedObjectOrTemplate(ObjectBinding)) : nullptr;
-	UFMODAudioComponent* AudioComponent;
+    AFMODAmbientSound *Sound = SequencerPtr.IsValid() ? Cast<AFMODAmbientSound>(SequencerPtr->FindSpawnedObjectOrTemplate(ObjectBinding)) : nullptr;
+    UFMODAudioComponent *AudioComponent;
 
     if (Sound != nullptr)
     {
-		AudioComponent = Sound->AudioComponent;
+        AudioComponent = Sound->AudioComponent;
     }
-	else
-	{
-		AudioComponent = SequencerPtr.IsValid() ? Cast<UFMODAudioComponent>(SequencerPtr->FindSpawnedObjectOrTemplate(ObjectBinding)) : nullptr;
-	}
-	return BuildParameterMenu(ObjectBinding, EventParameterTrack, AudioComponent);
+    else
+    {
+        AudioComponent = SequencerPtr.IsValid() ? Cast<UFMODAudioComponent>(SequencerPtr->FindSpawnedObjectOrTemplate(ObjectBinding)) : nullptr;
+    }
+    return BuildParameterMenu(ObjectBinding, EventParameterTrack, AudioComponent);
 }
 
-TSharedRef<SWidget> FFMODEventParameterTrackEditor::BuildParameterMenu(FGuid ObjectBinding, UFMODEventParameterTrack* EventParameterTrack, UFMODAudioComponent* AudioComponent)
+TSharedRef<SWidget> FFMODEventParameterTrackEditor::BuildParameterMenu(
+    FGuid ObjectBinding, UFMODEventParameterTrack *EventParameterTrack, UFMODAudioComponent *AudioComponent)
 {
-	FMenuBuilder AddParameterMenuBuilder(true, nullptr);
+    FMenuBuilder AddParameterMenuBuilder(true, nullptr);
 
-	if (AudioComponent != nullptr && AudioComponent->Event.IsValid())
-	{
-		TArray<FParameterNameAndAction> ParameterNamesAndActions;
+    if (AudioComponent != nullptr && AudioComponent->Event.IsValid())
+    {
+        TArray<FParameterNameAndAction> ParameterNamesAndActions;
         TArray<FMOD_STUDIO_PARAMETER_DESCRIPTION> ParameterDescriptions;
         AudioComponent->Event->GetParameterDescriptions(ParameterDescriptions);
 
-		for (FMOD_STUDIO_PARAMETER_DESCRIPTION& ParameterDescription : ParameterDescriptions)
-		{
+        for (FMOD_STUDIO_PARAMETER_DESCRIPTION &ParameterDescription : ParameterDescriptions)
+        {
             FName ParameterName(ParameterDescription.name);
-			FExecuteAction InitAction = FExecuteAction::CreateSP(this, &FFMODEventParameterTrackEditor::AddParameter, ObjectBinding, EventParameterTrack, ParameterName);
-			FUIAction AddParameterMenuAction(InitAction);
-			FParameterNameAndAction NameAndAction(ParameterName, AddParameterMenuAction);
-			ParameterNamesAndActions.Add(NameAndAction);
-		}
+            FExecuteAction InitAction =
+                FExecuteAction::CreateSP(this, &FFMODEventParameterTrackEditor::AddParameter, ObjectBinding, EventParameterTrack, ParameterName);
+            FUIAction AddParameterMenuAction(InitAction);
+            FParameterNameAndAction NameAndAction(ParameterName, AddParameterMenuAction);
+            ParameterNamesAndActions.Add(NameAndAction);
+        }
 
-		// Sort and generate menu.
-		ParameterNamesAndActions.Sort();
-		for (FParameterNameAndAction NameAndAction : ParameterNamesAndActions)
-		{
-			AddParameterMenuBuilder.AddMenuEntry(FText::FromName(NameAndAction.ParameterName), FText(), FSlateIcon(), NameAndAction.Action);
-		}
-	}
-	return AddParameterMenuBuilder.MakeWidget();
+        // Sort and generate menu.
+        ParameterNamesAndActions.Sort();
+        for (FParameterNameAndAction NameAndAction : ParameterNamesAndActions)
+        {
+            AddParameterMenuBuilder.AddMenuEntry(FText::FromName(NameAndAction.ParameterName), FText(), FSlateIcon(), NameAndAction.Action);
+        }
+    }
+    return AddParameterMenuBuilder.MakeWidget();
 }
-
 
 bool FFMODEventParameterTrackEditor::CanAddEventParameterTrack(FGuid ObjectBinding)
 {
-    return GetSequencer()->GetFocusedMovieSceneSequence()->GetMovieScene()->FindTrack(UFMODEventParameterTrack::StaticClass(), ObjectBinding, TrackName) == nullptr;
+    return GetSequencer()->GetFocusedMovieSceneSequence()->GetMovieScene()->FindTrack(
+               UFMODEventParameterTrack::StaticClass(), ObjectBinding, TrackName) == nullptr;
 }
-
 
 void FFMODEventParameterTrackEditor::AddEventParameterTrack(FGuid ObjectBinding)
 {
@@ -130,16 +122,15 @@ void FFMODEventParameterTrackEditor::AddEventParameterTrack(FGuid ObjectBinding)
     GetSequencer()->NotifyMovieSceneDataChanged(EMovieSceneDataChangeType::MovieSceneStructureItemAdded);
 }
 
-
-void FFMODEventParameterTrackEditor::AddParameter(FGuid ObjectBinding, UFMODEventParameterTrack* EventParameterTrack, FName ParameterName)
+void FFMODEventParameterTrackEditor::AddParameter(FGuid ObjectBinding, UFMODEventParameterTrack *EventParameterTrack, FName ParameterName)
 {
-    UMovieSceneSequence* MovieSceneSequence = GetMovieSceneSequence();
+    UMovieSceneSequence *MovieSceneSequence = GetMovieSceneSequence();
     FFrameNumber KeyTime = GetTimeForKey();
 
     for (TWeakObjectPtr<> Object : GetSequencer()->FindObjectsInCurrentSequence(ObjectBinding))
     {
-        AFMODAmbientSound* Sound = Cast<AFMODAmbientSound>(Object.Get());
-        UFMODAudioComponent* AudioComponent = nullptr;
+        AFMODAmbientSound *Sound = Cast<AFMODAmbientSound>(Object.Get());
+        UFMODAudioComponent *AudioComponent = nullptr;
 
         if (Sound != nullptr)
         {

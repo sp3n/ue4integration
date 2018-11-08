@@ -11,11 +11,8 @@
 UCLASS()
 class FMODSTUDIO_API UFMODSnapshot : public UFMODEvent
 {
-	GENERATED_UCLASS_BODY()
+    GENERATED_UCLASS_BODY()
 
-	/** Descriptive name */
-	virtual FString GetDesc() override;
-
+    /** Descriptive name */
+    virtual FString GetDesc() override;
 };
-
-

@@ -11,7 +11,7 @@ FFMODEventControlChannel::FFMODEventControlChannel()
     SetEnum(FindObject<UEnum>(ANY_PACKAGE, TEXT("EFMODEventControlKey")));
 }
 
-UFMODEventControlSection::UFMODEventControlSection(const FObjectInitializer& ObjectInitializer)
+UFMODEventControlSection::UFMODEventControlSection(const FObjectInitializer &ObjectInitializer)
     : Super(ObjectInitializer)
 {
     SetRange(TRange<FFrameNumber>::All());
