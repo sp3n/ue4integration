@@ -31,7 +31,7 @@ struct TStructOpsTypeTraits<FFMODEventControlChannel> : public TStructOpsTypeTra
 {
     enum
     {
-        WithSerializeFromMismatchedTag = true
+        WithStructuredSerializeFromMismatchedTag = true
     };
 };
 
