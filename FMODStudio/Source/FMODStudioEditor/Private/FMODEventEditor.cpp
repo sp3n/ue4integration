@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2018.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2019.
 
 #include "FMODEventEditor.h"
 #include "FMODEvent.h"
@@ -107,18 +107,21 @@ TArray<float> &FFMODEventEditor::GetParameterValues()
 
 void FFMODEventEditor::InitFMODEventEditor(const EToolkitMode::Type Mode, const TSharedPtr<class IToolkitHost> &InitToolkitHost, UFMODEvent *Event)
 {
-    EditedEvent = Event;
+    if (IsValid(Event))
+    {
+        EditedEvent = Event;
 
-    TSharedRef<FTabManager::FLayout> StandaloneDefaultLayout =
-        FTabManager::NewLayout("Standalone_FMODEventEditor_Layout")
-            ->AddArea(FTabManager::NewPrimaryArea()
-                          ->SetOrientation(Orient_Vertical)
-                          ->Split(FTabManager::NewStack()->AddTab(EventEditorTabId, ETabState::OpenedTab)->SetHideTabWell(true)));
+        TSharedRef<FTabManager::FLayout> StandaloneDefaultLayout =
+            FTabManager::NewLayout("Standalone_FMODEventEditor_Layout")
+                ->AddArea(FTabManager::NewPrimaryArea()
+                              ->SetOrientation(Orient_Vertical)
+                              ->Split(FTabManager::NewStack()->AddTab(EventEditorTabId, ETabState::OpenedTab)->SetHideTabWell(true)));
 
-    const bool bCreateDefaultStandaloneMenu = true;
-    const bool bCreateDefaultToolbar = false;
-    FAssetEditorToolkit::InitAssetEditor(Mode, InitToolkitHost, FFMODEventEditor::FMODEventEditorAppIdentifier, StandaloneDefaultLayout,
-        bCreateDefaultStandaloneMenu, bCreateDefaultToolbar, Event);
+        const bool bCreateDefaultStandaloneMenu = true;
+        const bool bCreateDefaultToolbar = false;
+        FAssetEditorToolkit::InitAssetEditor(Mode, InitToolkitHost, FFMODEventEditor::FMODEventEditorAppIdentifier, StandaloneDefaultLayout,
+            bCreateDefaultStandaloneMenu, bCreateDefaultToolbar, Event);
+    }
 }
 
 FName FFMODEventEditor::GetToolkitFName() const

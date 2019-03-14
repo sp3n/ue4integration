@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2018.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2019.
 
 #include "FMODEventControlSectionTemplate.h"
 #include "FMODAmbientSound.h"
@@ -14,7 +14,10 @@ struct FPlayingToken : IMovieScenePreAnimatedToken
 
         if (UFMODAudioComponent *AudioComponent = Cast<UFMODAudioComponent>(&InObject))
         {
-            bPlaying = AudioComponent->IsPlaying();
+            if (IsValid(AudioComponent))
+            {
+                bPlaying = AudioComponent->IsPlaying();
+            }
         }
     }
 
@@ -75,7 +78,7 @@ struct FFMODEventControlExecutionToken : IMovieSceneExecutionToken
                 AudioComponent = AmbientSound ? AmbientSound->AudioComponent : nullptr;
             }
 
-            if (AudioComponent)
+            if (IsValid(AudioComponent))
             {
                 Player.SavePreAnimatedState(*AudioComponent, FPlayingTokenProducer::GetAnimTypeID(), FPlayingTokenProducer());
 

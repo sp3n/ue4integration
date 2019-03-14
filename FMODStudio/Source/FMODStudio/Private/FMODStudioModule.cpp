@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2018.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2019.
 
 #include "FMODStudioModule.h"
 #include "FMODSettings.h"
@@ -753,7 +753,12 @@ void FFMODStudioModule::DestroyStudioSystem(EFMODSystemContext::Type Type)
 
             for (int i = 0; i < bankCount; i++)
             {
-                verifyfmod(bankArray[i]->unloadSampleData());
+                FMOD_STUDIO_LOADING_STATE state;
+                bankArray[i]->getSampleLoadingState(&state);
+                if (state == FMOD_STUDIO_LOADING_STATE_LOADED)
+                {
+                    verifyfmod(bankArray[i]->unloadSampleData());
+                }
             }
         }
     }
@@ -767,8 +772,6 @@ void FFMODStudioModule::DestroyStudioSystem(EFMODSystemContext::Type Type)
 
 bool FFMODStudioModule::Tick(float DeltaTime)
 {
-    bListenerMoved = false;
-
     if (GIsEditor)
     {
         BankUpdateNotifier.Update();
@@ -823,7 +826,9 @@ void FFMODStudioModule::UpdateViewportPosition()
     bool bCameraCut = false; // Not sure how to get View->bCameraCut from here
     float DeltaSeconds = ((bCameraCut || !ViewportWorld) ? 0.f : ViewportWorld->GetDeltaSeconds());
 
-    if (ViewportWorld)
+    bListenerMoved = false;
+
+    if (IsValid(ViewportWorld))
     {
         for (FConstPlayerControllerIterator Iterator = ViewportWorld->GetPlayerControllerIterator(); Iterator; ++Iterator)
         {
@@ -958,14 +963,14 @@ void FFMODStudioModule::FinishSetListenerPosition(int NumListeners, float DeltaS
     {
         AAudioVolume *CandidateVolume = Listeners[i].Volume;
 
-        if (BestVolume == nullptr || (CandidateVolume != nullptr && CandidateVolume->GetPriority() > BestVolume->GetPriority()))
+        if (BestVolume == nullptr || (IsValid(CandidateVolume) && IsValid(BestVolume) && CandidateVolume->GetPriority() > BestVolume->GetPriority()))
         {
             BestVolume = CandidateVolume;
         }
     }
     UFMODSnapshotReverb *NewSnapshot = nullptr;
 
-    if (BestVolume && BestVolume->GetReverbSettings().bApplyReverb)
+    if (IsValid(BestVolume) && BestVolume->GetReverbSettings().bApplyReverb)
     {
         NewSnapshot = Cast<UFMODSnapshotReverb>(BestVolume->GetReverbSettings().ReverbEffect);
     }
@@ -1370,7 +1375,7 @@ FMOD::Studio::EventDescription *FFMODStudioModule::GetEventDescription(const UFM
     {
         Context = (bIsInPIE ? EFMODSystemContext::Runtime : EFMODSystemContext::Auditioning);
     }
-    if (StudioSystem[Context] != nullptr && Event != nullptr && Event->AssetGuid.IsValid())
+    if (StudioSystem[Context] != nullptr && IsValid(Event) && Event->AssetGuid.IsValid())
     {
         FMOD::Studio::ID Guid = FMODUtils::ConvertGuid(Event->AssetGuid);
         FMOD::Studio::EventDescription *EventDesc = nullptr;
@@ -1383,14 +1388,16 @@ FMOD::Studio::EventDescription *FFMODStudioModule::GetEventDescription(const UFM
 FMOD::Studio::EventInstance *FFMODStudioModule::CreateAuditioningInstance(const UFMODEvent *Event)
 {
     StopAuditioningInstance();
-
-    FMOD::Studio::EventDescription *EventDesc = GetEventDescription(Event, EFMODSystemContext::Auditioning);
-    if (EventDesc)
+    if (IsValid(Event))
     {
-        FMOD_RESULT Result = EventDesc->createInstance(&AuditioningInstance);
-        if (Result == FMOD_OK)
+        FMOD::Studio::EventDescription *EventDesc = GetEventDescription(Event, EFMODSystemContext::Auditioning);
+        if (EventDesc)
         {
-            return AuditioningInstance;
+            FMOD_RESULT Result = EventDesc->createInstance(&AuditioningInstance);
+            if (Result == FMOD_OK)
+            {
+                return AuditioningInstance;
+            }
         }
     }
     return nullptr;

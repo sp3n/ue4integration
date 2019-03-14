@@ -1,6 +1,6 @@
 /*
     fmod_studio_common.h
-    Copyright (c), Firelight Technologies Pty, Ltd. 2018.
+    Copyright (c), Firelight Technologies Pty, Ltd. 2019.
 
     This header defines common enumerations, structs and callbacks that are shared between the C and C++ interfaces.
 */
@@ -383,6 +383,8 @@ typedef unsigned int FMOD_STUDIO_SYSTEM_CALLBACK_TYPE;
 #define FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_BEAT            0x00001000  /* Called when the timeline hits a beat in a tempo section.  Parameters = FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES. */
 #define FMOD_STUDIO_EVENT_CALLBACK_SOUND_PLAYED             0x00002000  /* Called when the event plays a sound.  Parameters = FMOD::Sound. */
 #define FMOD_STUDIO_EVENT_CALLBACK_SOUND_STOPPED            0x00004000  /* Called when the event finishes playing a sound.  Parameters = FMOD::Sound. */
+#define FMOD_STUDIO_EVENT_CALLBACK_REAL_TO_VIRTUAL          0x00008000  /* Called when the event becomes virtual.  Parameters = unused. */
+#define FMOD_STUDIO_EVENT_CALLBACK_VIRTUAL_TO_REAL          0x00010000  /* Called when the event becomes real.  Parameters = unused. */
 #define FMOD_STUDIO_EVENT_CALLBACK_ALL                      0xFFFFFFFF  /* Pass this mask to Studio::EventDescription::setCallback or Studio::EventInstance::setCallback to receive all callback types. */
 /* [DEFINE_END] */
 
@@ -587,6 +589,7 @@ typedef struct FMOD_STUDIO_ADVANCEDSETTINGS
     unsigned int    handleinitialsize;          /* [r/w] Optional. Specify 0 to ignore. Specify the initial size to allocate for handles.  Memory for handles will grow as needed in pages. Default 8192 * sizeof(void*) */
     int             studioupdateperiod;         /* [r/w] Optional. Specify 0 to ignore. Specify the update period of Studio when in async mode, in milliseconds.  Will be quantised to the nearest multiple of mixer duration.  Default is 20ms. */
     int             idlesampledatapoolsize;     /* [r/w] Optional. Specify 0 to ignore. Specify the amount of sample data to keep in memory when no longer used, to avoid repeated disk IO.  Use -1 to disable.  Default is 256kB. */
+    unsigned int    streamingscheduledelay;     /* [r/w] Optional. Specify 0 to ignore. Specify the schedule delay for streams, in samples.  Lower values can reduce latency when scheduling events containing streams but may cause scheduling issues if too small. Default is 8192 samples. */
 } FMOD_STUDIO_ADVANCEDSETTINGS;
 
 

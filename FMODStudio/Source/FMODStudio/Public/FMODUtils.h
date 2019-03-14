@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2018.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2019.
 
 #pragma once
 
@@ -73,7 +73,7 @@ inline bool IsWorldAudible(UWorld *World, bool AllowInEditor)
 {
     if (GEngine && IFMODStudioModule::Get().UseSound())
     {
-        if (World == nullptr)
+        if (!IsValid(World))
         {
             return true;
         }

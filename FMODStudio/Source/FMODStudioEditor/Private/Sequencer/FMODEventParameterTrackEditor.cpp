@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2018.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2019.
 
 #include "FMODEventParameterTrackEditor.h"
 #include "FMODAmbientSound.h"
@@ -68,7 +68,7 @@ TSharedRef<SWidget> FFMODEventParameterTrackEditor::OnGetAddParameterMenuContent
     AFMODAmbientSound *Sound = SequencerPtr.IsValid() ? Cast<AFMODAmbientSound>(SequencerPtr->FindSpawnedObjectOrTemplate(ObjectBinding)) : nullptr;
     UFMODAudioComponent *AudioComponent;
 
-    if (Sound != nullptr)
+    if (IsValid(Sound))
     {
         AudioComponent = Sound->AudioComponent;
     }
@@ -84,7 +84,7 @@ TSharedRef<SWidget> FFMODEventParameterTrackEditor::BuildParameterMenu(
 {
     FMenuBuilder AddParameterMenuBuilder(true, nullptr);
 
-    if (AudioComponent != nullptr && AudioComponent->Event.IsValid())
+    if (IsValid(AudioComponent) && AudioComponent->Event.IsValid())
     {
         TArray<FParameterNameAndAction> ParameterNamesAndActions;
         TArray<FMOD_STUDIO_PARAMETER_DESCRIPTION> ParameterDescriptions;
@@ -132,7 +132,7 @@ void FFMODEventParameterTrackEditor::AddParameter(FGuid ObjectBinding, UFMODEven
         AFMODAmbientSound *Sound = Cast<AFMODAmbientSound>(Object.Get());
         UFMODAudioComponent *AudioComponent = nullptr;
 
-        if (Sound != nullptr)
+        if (IsValid(Sound))
         {
             AudioComponent = Sound->AudioComponent;
         }
@@ -141,7 +141,7 @@ void FFMODEventParameterTrackEditor::AddParameter(FGuid ObjectBinding, UFMODEven
             AudioComponent = Cast<UFMODAudioComponent>(Object.Get());
         }
 
-        if (AudioComponent != nullptr)
+        if (IsValid(AudioComponent))
         {
             float Value = AudioComponent->GetParameter(ParameterName);
             const FScopedTransaction Transaction(LOCTEXT("AddEventParameter", "Add event parameter"));
