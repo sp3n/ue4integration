@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2018.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2019.
 
 #pragma once
 
@@ -70,10 +70,12 @@ class FMODSTUDIO_API UFMODBlueprintStatics : public UBlueprintFunctionLibrary
 	 * @param LocationType - Specifies whether Location is a relative offset or an absolute world position
 	 * @param bStopWhenAttachedToDestroyed - Specifies whether the sound should stop playing when the owner of the attach to component is destroyed.
 	 * @param bAutoPlay - Start the event automatically.
+	 * @param bAutoDestroy - Automatically destroy the audio component when the sound is stopped.
 	 */
-    UFUNCTION(BlueprintCallable, Category = "Audio|FMOD", meta = (AdvancedDisplay = "2", UnsafeDuringActorConstruction = "true", bAutoPlay = "true"))
+    UFUNCTION(BlueprintCallable, Category = "Audio|FMOD",
+        meta = (AdvancedDisplay = "2", UnsafeDuringActorConstruction = "true", bAutoPlay = "true", bAutoDestroy = "true"))
     static class UFMODAudioComponent *PlayEventAttached(UFMODEvent *Event, USceneComponent *AttachToComponent, FName AttachPointName,
-        FVector Location, EAttachLocation::Type LocationType, bool bStopWhenAttachedToDestroyed, bool bAutoPlay);
+        FVector Location, EAttachLocation::Type LocationType, bool bStopWhenAttachedToDestroyed, bool bAutoPlay, bool bAutoDestroy);
 
     /** Find an asset by name.
 	 * @param EventName - The asset name

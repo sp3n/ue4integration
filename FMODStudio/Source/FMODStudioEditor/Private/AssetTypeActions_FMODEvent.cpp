@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2018.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2019.
 
 #include "AssetTypeActions_FMODEvent.h"
 #include "AssetTypeActions_Base.h"
@@ -53,7 +53,7 @@ void FAssetTypeActions_FMODEvent::OpenAssetEditor(const TArray<UObject *> &InObj
     for (auto ObjIt = InObjects.CreateConstIterator(); ObjIt; ++ObjIt)
     {
         auto Event = Cast<UFMODEvent>(*ObjIt);
-        if (Event != nullptr)
+        if (IsValid(Event))
         {
             TSharedRef<FFMODEventEditor> NewFMODEventEditor(new FFMODEventEditor());
             NewFMODEventEditor->InitFMODEventEditor(Mode, EditWithinLevelEditor, Event);
@@ -73,7 +73,7 @@ void FAssetTypeActions_FMODEvent::AssetsActivated(const TArray<UObject *> &InObj
         for (auto ObjIt = InObjects.CreateConstIterator(); ObjIt; ++ObjIt)
         {
             UFMODEvent *Event = Cast<UFMODEvent>(*ObjIt);
-            if (Event != nullptr)
+            if (IsValid(Event))
             {
                 // Only play the first valid event
                 PlayEvent(Event);
@@ -92,7 +92,7 @@ void FAssetTypeActions_FMODEvent::ExecuteEdit(TArray<TWeakObjectPtr<UFMODEvent>>
     for (auto ObjIt = Objects.CreateConstIterator(); ObjIt; ++ObjIt)
     {
         auto Object = (*ObjIt).Get();
-        if (Object != nullptr)
+        if (IsValid(Object))
         {
             FAssetEditorManager::Get().OpenEditorForAsset(Object);
         }
@@ -104,7 +104,7 @@ void FAssetTypeActions_FMODEvent::ExecutePlay(TArray<TWeakObjectPtr<UFMODEvent>>
     for (auto ObjIt = Objects.CreateConstIterator(); ObjIt; ++ObjIt)
     {
         UFMODEvent *Event = (*ObjIt).Get();
-        if (Event != nullptr)
+        if (IsValid(Event))
         {
             // Only play the first valid event
             PlayEvent(Event);
@@ -120,10 +120,13 @@ void FAssetTypeActions_FMODEvent::ExecuteStop(TArray<TWeakObjectPtr<UFMODEvent>>
 
 void FAssetTypeActions_FMODEvent::PlayEvent(UFMODEvent *Event)
 {
-    CurrentPreviewEventInstance = IFMODStudioModule::Get().CreateAuditioningInstance(Event);
-    if (CurrentPreviewEventInstance != nullptr)
+    if (IsValid(Event))
     {
-        CurrentPreviewEventInstance->start();
+        CurrentPreviewEventInstance = IFMODStudioModule::Get().CreateAuditioningInstance(Event);
+        if (CurrentPreviewEventInstance != nullptr)
+        {
+            CurrentPreviewEventInstance->start();
+        }
     }
 }
 

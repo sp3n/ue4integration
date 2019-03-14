@@ -1,4 +1,5 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2018.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2019.
+using System.IO;
 
 namespace UnrealBuildTool.Rules
 {
@@ -15,17 +16,9 @@ namespace UnrealBuildTool.Rules
             
             bFasterWithoutUnity = true;
 
-            PublicIncludePaths.AddRange(
-                new string[] {
-                }
-                );
+            PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public/FMOD"));
 
-            PrivateIncludePaths.AddRange(
-                new string[] {
-                    "FMODStudio/Private",
-                    "FMODStudio/Public/FMOD",
-                }
-                );
+            PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Classes"));
 
             PublicDependencyModuleNames.AddRange(
                 new string[]

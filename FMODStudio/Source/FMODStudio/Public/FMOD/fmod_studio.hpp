@@ -1,6 +1,6 @@
 /*
     fmod_studio.hpp - FMOD Studio API
-    Copyright (c), Firelight Technologies Pty, Ltd. 2018.
+    Copyright (c), Firelight Technologies Pty, Ltd. 2019.
 
     This header defines the C++ API. If you are programming in C use fmod_studio.h.
 */

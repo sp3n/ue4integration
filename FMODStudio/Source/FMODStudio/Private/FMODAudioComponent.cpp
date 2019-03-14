@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2018.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2019.
 
 #include "FMODAudioComponent.h"
 #include "FMODStudioModule.h"
@@ -53,6 +53,7 @@ UFMODAudioComponent::UFMODAudioComponent(const FObjectInitializer &ObjectInitial
     AmbientLPF = MAX_FILTER_FREQUENCY;
     LastLPF = MAX_FILTER_FREQUENCY;
     LastVolume = 1.0f;
+    Module = nullptr;
 
     for (int i = 0; i < EFMODEventProperty::Count; ++i)
     {
@@ -166,7 +167,7 @@ void UFMODAudioComponent::UpdateInteriorVolumes()
     const FVector &Location = GetOwner()->GetTransform().GetTranslation();
     AAudioVolume *AudioVolume = GetWorld()->GetAudioSettings(Location, NULL, Ambient);
 
-    const FFMODListener &Listener = IFMODStudioModule::Get().GetNearestListener(Location);
+    const FFMODListener &Listener = GetStudioModule().GetNearestListener(Location);
     if (InteriorLastUpdateTime < Listener.InteriorStartTime)
     {
         SourceInteriorVolume = CurrentInteriorVolume;
@@ -250,9 +251,9 @@ void UFMODAudioComponent::UpdateAttenuation()
         FCollisionQueryParams Params(NAME_SoundOcclusion, OcclusionDetails.bUseComplexCollisionForOcclusion, GetOwner());
 
         const FVector &Location = GetOwner()->GetTransform().GetTranslation();
-        const FFMODListener &Listener = IFMODStudioModule::Get().GetNearestListener(Location);
+        const FFMODListener &Listener = GetStudioModule().GetNearestListener(Location);
 
-        bool bIsOccluded = GWorld->LineTraceTestByChannel(Location, Listener.Transform.GetLocation(), ECC_Visibility, Params);
+        bool bIsOccluded = GWorld->LineTraceTestByChannel(Location, Listener.Transform.GetLocation(), OcclusionDetails.OcclusionTraceChannel, Params);
 
         // Apply directly as gain and LPF
         if (bApplyOcclusionDirect)
@@ -401,29 +402,32 @@ void UFMODAudioComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 
     if (bIsActive)
     {
-        if (IFMODStudioModule::Get().HasListenerMoved())
+        if (GetStudioModule().HasListenerMoved())
         {
             UpdateInteriorVolumes();
             UpdateAttenuation();
             ApplyVolumeLPF();
         }
 
-        TArray<FTimelineMarkerProperties> LocalMarkerQueue;
-        TArray<FTimelineBeatProperties> LocalBeatQueue;
+        if (bEnableTimelineCallbacks)
         {
-            FScopeLock Lock(&CallbackLock);
-            Swap(LocalMarkerQueue, CallbackMarkerQueue);
-            Swap(LocalBeatQueue, CallbackBeatQueue);
-        }
+            TArray<FTimelineMarkerProperties> LocalMarkerQueue;
+            TArray<FTimelineBeatProperties> LocalBeatQueue;
+            {
+                FScopeLock Lock(&CallbackLock);
+                Swap(LocalMarkerQueue, CallbackMarkerQueue);
+                Swap(LocalBeatQueue, CallbackBeatQueue);
+            }
 
-        for (const FTimelineMarkerProperties &EachProps : LocalMarkerQueue)
-        {
-            OnTimelineMarker.Broadcast(EachProps.Name, EachProps.Position);
-        }
-        for (const FTimelineBeatProperties &EachProps : LocalBeatQueue)
-        {
-            OnTimelineBeat.Broadcast(
-                EachProps.Bar, EachProps.Beat, EachProps.Position, EachProps.Tempo, EachProps.TimeSignatureUpper, EachProps.TimeSignatureLower);
+            for (const FTimelineMarkerProperties &EachProps : LocalMarkerQueue)
+            {
+                OnTimelineMarker.Broadcast(EachProps.Name, EachProps.Position);
+            }
+            for (const FTimelineBeatProperties &EachProps : LocalBeatQueue)
+            {
+                OnTimelineBeat.Broadcast(
+                    EachProps.Bar, EachProps.Beat, EachProps.Position, EachProps.Tempo, EachProps.TimeSignatureUpper, EachProps.TimeSignatureLower);
+            }
         }
 
         FMOD_STUDIO_PLAYBACK_STATE state = FMOD_STUDIO_PLAYBACK_STOPPED;
@@ -480,7 +484,7 @@ FMOD_RESULT F_CALLBACK UFMODAudioComponent_EventCallback(FMOD_STUDIO_EVENT_CALLB
 {
     UFMODAudioComponent *Component = nullptr;
     FMOD::Studio::EventInstance *Instance = (FMOD::Studio::EventInstance *)event;
-    if (Instance->getUserData((void **)&Component) == FMOD_OK && Component != nullptr)
+    if (Instance->getUserData((void **)&Component) == FMOD_OK && IsValid(Component))
     {
         if (type == FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_MARKER && Component->bEnableTimelineCallbacks)
         {
@@ -540,7 +544,7 @@ void UFMODAudioComponent::EventCallbackCreateProgrammerSound(FMOD_STUDIO_PROGRAM
     }
     else if (ProgrammerSoundNameCopy.Len() || strlen(props->name) != 0)
     {
-        FMOD::Studio::System *System = IFMODStudioModule::Get().GetStudioSystem(EFMODSystemContext::Runtime);
+        FMOD::Studio::System *System = GetStudioModule().GetStudioSystem(EFMODSystemContext::Max);
         FMOD::System *LowLevelSystem = nullptr;
         System->getLowLevelSystem(&LowLevelSystem);
         FString SoundName = ProgrammerSoundNameCopy.Len() ? ProgrammerSoundNameCopy : UTF8_TO_TCHAR(props->name);
@@ -637,11 +641,11 @@ void UFMODAudioComponent::PlayInternal(EFMODSystemContext::Type Context)
     UE_LOG(LogFMOD, Verbose, TEXT("UFMODAudioComponent %p Play"), this);
 
     // Only play events in PIE/game, not when placing them in the editor
-    FMOD::Studio::EventDescription *EventDesc = IFMODStudioModule::Get().GetEventDescription(Event.Get(), Context);
+    FMOD::Studio::EventDescription *EventDesc = GetStudioModule().GetEventDescription(Event.Get(), Context);
     if (EventDesc != nullptr)
     {
         EventDesc->getLength(&EventLength);
-        if (StudioInstance == nullptr)
+        if (!StudioInstance || !StudioInstance->isValid())
         {
             FMOD_RESULT result = EventDesc->createInstance(&StudioInstance);
             if (result != FMOD_OK)
@@ -691,8 +695,11 @@ void UFMODAudioComponent::PlayInternal(EFMODSystemContext::Type Context)
             }
         }
 
+        if (bEnableTimelineCallbacks || !ProgrammerSoundName.IsEmpty())
+        {
+            verifyfmod(StudioInstance->setCallback(UFMODAudioComponent_EventCallback));
+        }
         verifyfmod(StudioInstance->setUserData(this));
-        verifyfmod(StudioInstance->setCallback(UFMODAudioComponent_EventCallback));
         verifyfmod(StudioInstance->start());
         UE_LOG(LogFMOD, Verbose, TEXT("Playing component %p"), this);
         bIsActive = true;

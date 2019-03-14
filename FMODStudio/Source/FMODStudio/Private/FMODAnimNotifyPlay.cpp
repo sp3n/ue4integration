@@ -21,7 +21,7 @@ void UFMODAnimNotifyPlay::Notify(USkeletalMeshComponent *MeshComp, UAnimSequence
         {
             // Play event attached
             UFMODBlueprintStatics::PlayEventAttached(
-                Event.Get(), MeshComp, *AttachName, FVector(0, 0, 0), EAttachLocation::KeepRelativeOffset, false, true);
+                Event.Get(), MeshComp, *AttachName, FVector(0, 0, 0), EAttachLocation::KeepRelativeOffset, false, true, true);
         }
         else
         {

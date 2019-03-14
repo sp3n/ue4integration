@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2018.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2019.
 
 #include "FMODAudioComponentVisualizer.h"
 #include "FMODAudioComponent.h"
@@ -13,7 +13,7 @@ void FFMODAudioComponentVisualizer::DrawVisualization(const UActorComponent *Com
     if (View->Family->EngineShowFlags.AudioRadius)
     {
         const UFMODAudioComponent *AudioComp = Cast<const UFMODAudioComponent>(Component);
-        if (AudioComp != nullptr && AudioComp->Event.IsValid())
+        if (IsValid(AudioComp) && AudioComp->Event.IsValid())
         {
             FMOD::Studio::EventDescription *EventDesc =
                 IFMODStudioModule::Get().GetEventDescription(AudioComp->Event.Get(), EFMODSystemContext::Auditioning);

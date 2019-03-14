@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2018.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2017.
 
 #include "FMODEventParameterSectionTemplate.h"
 #include "FMODAmbientSound.h"
@@ -18,9 +18,12 @@ struct FFMODEventParameterPreAnimatedToken : IMovieScenePreAnimatedToken
     {
         UFMODAudioComponent *AudioComponent = CastChecked<UFMODAudioComponent>(&Object);
 
-        for (FScalarParameterNameAndValue &Value : Values)
+        if (IsValid(AudioComponent))
         {
-            AudioComponent->SetParameter(Value.ParameterName, Value.Value);
+            for (FScalarParameterNameAndValue &Value : Values)
+            {
+                AudioComponent->SetParameter(Value.ParameterName, Value.Value);
+            }
         }
     }
 
@@ -35,7 +38,7 @@ struct FFMODEventParameterPreAnimatedTokenProducer : IMovieScenePreAnimatedToken
 
         FFMODEventParameterPreAnimatedToken Token;
 
-        if (AudioComponent && AudioComponent->Event)
+        if (IsValid(AudioComponent) && AudioComponent->Event)
         {
             TArray<FMOD_STUDIO_PARAMETER_DESCRIPTION> ParameterDescriptions;
             AudioComponent->Event->GetParameterDescriptions(ParameterDescriptions);
@@ -75,7 +78,7 @@ struct FFMODEventParameterExecutionToken : IMovieSceneExecutionToken
                 AudioComponent = AmbientSound ? AmbientSound->AudioComponent : nullptr;
             }
 
-            if (AudioComponent)
+            if (IsValid(AudioComponent))
             {
                 Player.SavePreAnimatedState(
                     *AudioComponent, TMovieSceneAnimTypeID<FFMODEventParameterExecutionToken>(), FFMODEventParameterPreAnimatedTokenProducer());
