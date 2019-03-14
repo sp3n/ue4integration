@@ -179,11 +179,11 @@ void UFMODAudioComponent::UpdateInteriorVolumes()
     if (Listener.Volume == AudioVolume || !bAllowSpatialization)
     {
         // Ambient and listener in same ambient zone
-        CurrentInteriorVolume = (SourceInteriorVolume * (1.0f - Listener.InteriorVolumeInterp)) + Listener.InteriorVolumeInterp;
-        NewAmbientVolumeMultiplier *= CurrentInteriorVolume;
+        CurrentInteriorVolume = FMath::Lerp(SourceInteriorVolume, 1.0f, Listener.InteriorVolumeInterp);
+        NewAmbientVolumeMultiplier = CurrentInteriorVolume;
 
-        CurrentInteriorLPF = (SourceInteriorLPF * (1.0f - Listener.InteriorLPFInterp)) + Listener.InteriorLPFInterp;
-        NewAmbientHighFrequencyGain *= CurrentInteriorLPF;
+        CurrentInteriorLPF = FMath::Lerp(SourceInteriorLPF, MAX_FILTER_FREQUENCY, Listener.InteriorLPFInterp);
+        NewAmbientHighFrequencyGain = CurrentInteriorLPF;
 
         //UE_LOG(LogFMOD, Verbose, TEXT( "Ambient in same volume. Volume *= %g LPF *= %g" ), CurrentInteriorVolume, CurrentInteriorLPF);
     }
@@ -193,39 +193,43 @@ void UFMODAudioComponent::UpdateInteriorVolumes()
         if (Ambient->bIsWorldSettings)
         {
             // The ambient sound is 'outside' - use the listener's exterior volume
-            CurrentInteriorVolume = (SourceInteriorVolume * (1.0f - Listener.ExteriorVolumeInterp)) +
-                                    (Listener.InteriorSettings.ExteriorVolume * Listener.ExteriorVolumeInterp);
-            NewAmbientVolumeMultiplier *= CurrentInteriorVolume;
+            CurrentInteriorVolume = FMath::Lerp(SourceInteriorVolume, Listener.InteriorSettings.ExteriorVolume, Listener.ExteriorVolumeInterp);
+            NewAmbientVolumeMultiplier = CurrentInteriorVolume;
 
-            CurrentInteriorLPF =
-                (SourceInteriorLPF * (1.0f - Listener.ExteriorLPFInterp)) + (Listener.InteriorSettings.ExteriorLPF * Listener.ExteriorLPFInterp);
-            NewAmbientHighFrequencyGain *= CurrentInteriorLPF;
+            CurrentInteriorLPF = FMath::Lerp(SourceInteriorLPF, Listener.InteriorSettings.ExteriorLPF, Listener.ExteriorLPFInterp);
+            NewAmbientHighFrequencyGain = CurrentInteriorLPF;
 
             //UE_LOG(LogFMOD, Verbose, TEXT( "Ambient in diff volume, ambient outside. Volume *= %g LPF *= %g" ), CurrentInteriorVolume, CurrentInteriorLPF);
         }
         else
         {
             // The ambient sound is 'inside' - use the ambient sound's interior volume multiplied with the listeners exterior volume
-            CurrentInteriorVolume =
-                ((SourceInteriorVolume * (1.0f - Listener.InteriorVolumeInterp)) + (Ambient->InteriorVolume * Listener.InteriorVolumeInterp)) *
-                ((SourceInteriorVolume * (1.0f - Listener.ExteriorVolumeInterp)) +
-                    (Listener.InteriorSettings.ExteriorVolume * Listener.ExteriorVolumeInterp));
-            NewAmbientVolumeMultiplier *= CurrentInteriorVolume;
+            CurrentInteriorVolume = FMath::Lerp(SourceInteriorVolume, Ambient->InteriorVolume, Listener.InteriorVolumeInterp);
+            CurrentInteriorVolume *= FMath::Lerp(SourceInteriorVolume, Listener.InteriorSettings.ExteriorVolume, Listener.ExteriorVolumeInterp);
+            NewAmbientVolumeMultiplier = CurrentInteriorVolume;
 
-            CurrentInteriorLPF =
-                ((SourceInteriorLPF * (1.0f - Listener.InteriorLPFInterp)) + (Ambient->InteriorLPF * Listener.InteriorLPFInterp)) *
-                ((SourceInteriorLPF * (1.0f - Listener.ExteriorLPFInterp)) + (Listener.InteriorSettings.ExteriorLPF * Listener.ExteriorLPFInterp));
-            NewAmbientHighFrequencyGain *= CurrentInteriorLPF;
+
+            float AmbientLPFValue = FMath::Lerp(SourceInteriorLPF, Ambient->InteriorLPF, Listener.InteriorLPFInterp);
+            float ListenerLPFValue = FMath::Lerp(SourceInteriorLPF, Listener.InteriorSettings.ExteriorLPF, Listener.ExteriorLPFInterp);
+
+            // The current interior LPF value is the less of the LPF due to ambient zone and LPF due to listener settings
+            if (AmbientLPFValue < ListenerLPFValue)
+            {
+                CurrentInteriorLPF = AmbientLPFValue;
+                NewAmbientHighFrequencyGain = AmbientLPFValue;
+            }
+            else
+            {
+                CurrentInteriorLPF = ListenerLPFValue;
+                NewAmbientHighFrequencyGain = ListenerLPFValue;
+            }
 
             //UE_LOG(LogFMOD, Verbose, TEXT( "Ambient in diff volume, ambient inside. Volume *= %g LPF *= %g" ), CurrentInteriorVolume, CurrentInteriorLPF);
         }
     }
 
-    // This seemed to match the inbuilt Unreal behaviour, although it is much lower than MAX_FILTER_FREQUENCY
-    static float MAX_FREQUENCY = 8000.0f;
-
     AmbientVolumeMultiplier = NewAmbientVolumeMultiplier;
-    AmbientLPF = MAX_FREQUENCY * NewAmbientHighFrequencyGain;
+    AmbientLPF = NewAmbientHighFrequencyGain;
 }
 
 void UFMODAudioComponent::UpdateAttenuation()
