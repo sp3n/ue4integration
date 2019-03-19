@@ -206,7 +206,7 @@ namespace Studio
 
         FMOD_RESULT F_API release();
 
-        FMOD_RESULT F_API isVirtual(bool *virtualState) const;
+        FMOD_RESULT F_API isVirtual(bool *virtualstate) const;
 
         FMOD_RESULT F_API getParameterValue(const char *name, float *value, float *finalvalue = 0);
         FMOD_RESULT F_API setParameterValue(const char *name, float value);
