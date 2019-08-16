@@ -530,6 +530,8 @@ inline FMOD_SPEAKERMODE ConvertSpeakerMode(EFMODSpeakerMode::Type Mode)
             return FMOD_SPEAKERMODE_5POINT1;
         case EFMODSpeakerMode::Surround_7_1:
             return FMOD_SPEAKERMODE_7POINT1;
+        case EFMODSpeakerMode::Surround_7_1_4:
+            return FMOD_SPEAKERMODE_7POINT1POINT4;
         default:
             check(0);
             return FMOD_SPEAKERMODE_DEFAULT;
@@ -616,6 +618,7 @@ void FFMODStudioModule::CreateStudioSystem(EFMODSystemContext::Type Type)
         }
     }
 
+    verifyfmod(lowLevelSystem->setOutput(FMOD_OUTPUTTYPE_WINSONIC));
     verifyfmod(lowLevelSystem->setSoftwareFormat(SampleRate, OutputMode, 0));
     verifyfmod(lowLevelSystem->setSoftwareChannels(Settings.RealChannelCount));
     AttachFMODFileSystem(lowLevelSystem, Settings.FileBufferSize);

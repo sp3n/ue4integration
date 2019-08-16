@@ -35,7 +35,9 @@ enum Type
     // 5.1 speaker setup
     Surround_5_1,
     // 7.1 speaker setup
-    Surround_7_1
+    Surround_7_1,
+    // 7.1.4 speaker setup
+    Surround_7_1_4
 };
 }
 
