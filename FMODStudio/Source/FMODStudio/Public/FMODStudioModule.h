@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2019.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2020.
 
 #pragma once
 
@@ -132,7 +132,7 @@ public:
     /**
 	 * Called to change the listener position for editor mode
 	 */
-    virtual void FinishSetListenerPosition(int NumListeners, float DeltaSeconds) = 0;
+    virtual void FinishSetListenerPosition(int NumListeners) = 0;
 
     /**
 	 * Return the audio settings for the listener nearest the given location
