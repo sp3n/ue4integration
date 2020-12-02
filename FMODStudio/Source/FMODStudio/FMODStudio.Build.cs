@@ -76,7 +76,7 @@ namespace UnrealBuildTool.Rules
             // Collapse the directory path, otherwise OSX is having issues with plugin paths.
             BasePath = Utils.CleanDirectorySeparators(BasePath);
 
-            string copyThirdPartyPath = "";
+            bool bCopyToOutput = false;
             bool bAddRuntimeDependencies = true;
             bool bAddDelayLoad = false;
             bool bShortLinkNames = false;
@@ -119,8 +119,8 @@ namespace UnrealBuildTool.Rules
             {
                 linkExtension = "_vc.lib";
                 dllExtension = ".dll";
-                copyThirdPartyPath = "../XBoxOne"; // XBoxOne still doesn't seem to support plugins with .dlls
-                bAddDelayLoad = false;
+                bCopyToOutput = true;
+                bAddRuntimeDependencies = false;
             }
             else if (Target.Platform == UnrealTargetPlatform.PS4)
             {
@@ -163,9 +163,7 @@ namespace UnrealBuildTool.Rules
             }
             else
             {
-                    //extName = ".a";
-                    throw new System.Exception(System.String.Format("Unsupported platform {0}", Target.Platform.ToString()));
-                    //break;
+                throw new System.Exception(System.String.Format("Unsupported platform {0}", Target.Platform.ToString()));
             }
             
             //System.Console.WriteLine("FMOD Current path: " + System.IO.Path.GetFullPath("."));
@@ -213,11 +211,16 @@ namespace UnrealBuildTool.Rules
             else
             {
                 string LibPath = System.IO.Path.Combine(ModuleDirectory, "../../Libs/Mac/");
-                PublicAdditionalLibraries.Add(System.String.Format("{0}libfmod{1}.dylib", LibPath, configName));            
-                PublicAdditionalLibraries.Add(System.String.Format("{0}libfmodStudio{1}.dylib", LibPath, configName));        
+                PublicAdditionalLibraries.Add(System.String.Format("{0}libfmod{1}.dylib", LibPath, configName));
+                PublicAdditionalLibraries.Add(System.String.Format("{0}libfmodStudio{1}.dylib", LibPath, configName));
             }
 
-            if (bAddRuntimeDependencies)
+            if (bCopyToOutput)
+            {
+                RuntimeDependencies.Add("$(TargetOutputDir)/" + fmodDllName, fmodDllPath);
+                RuntimeDependencies.Add("$(TargetOutputDir)/" + fmodStudioDllName, fmodStudioDllPath);
+            }
+            else if (bAddRuntimeDependencies)
             {
                 RuntimeDependencies.Add(fmodDllPath);
                 RuntimeDependencies.Add(fmodStudioDllPath);
@@ -227,18 +230,6 @@ namespace UnrealBuildTool.Rules
                     System.Console.WriteLine("Adding reference to FMOD plugin: " + pluginPath);
                     RuntimeDependencies.Add(pluginPath);
                 }
-            }
-
-            if (copyThirdPartyPath.Length != 0)
-            {
-                string destPath = System.IO.Path.Combine(Target.UEThirdPartyBinariesDirectory, copyThirdPartyPath);
-                System.IO.Directory.CreateDirectory(destPath);
-
-                string fmodDllDest = System.IO.Path.Combine(destPath, fmodDllName);
-                string fmodStudioDllDest = System.IO.Path.Combine(destPath, fmodStudioDllName);
-
-                CopyFile(fmodDllPath, fmodDllDest);
-                CopyFile(fmodStudioDllPath, fmodStudioDllDest);
             }
 
             if (bAddDelayLoad)
