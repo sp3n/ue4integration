@@ -7,10 +7,6 @@
 #include "Settings/ProjectPackagingSettings.h"
 #endif
 
-#ifdef FMOD_PLATFORM_HEADER
-#include "FMODPlatform.h"
-#endif
-
 //////////////////////////////////////////////////////////////////////////
 // UPaperRuntimeSettings
 
@@ -36,6 +32,7 @@ UFMODSettings::UFMODSettings(const FObjectInitializer &ObjectInitializer)
     EditorLiveUpdatePort = 9265;
     bMatchHardwareSampleRate = true;
     bLockAllBuses = false;
+    bEnableMemoryTracking = false;
 }
 
 FString UFMODSettings::GetFullBankPath() const
@@ -56,9 +53,7 @@ FString UFMODSettings::GetFullBankPath() const
     }
     else
     {
-#ifdef FMOD_PLATFORM_HEADER
-        FString PlatformName = FMODPlatform_PlatformName();
-#elif PLATFORM_IOS || PLATFORM_TVOS || PLATFORM_ANDROID
+#if PLATFORM_IOS || PLATFORM_TVOS || PLATFORM_ANDROID
         FString PlatformName = "Mobile";
 #elif PLATFORM_PS4
         FString PlatformName = "PS4";

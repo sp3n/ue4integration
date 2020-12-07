@@ -7,7 +7,6 @@
 #include "MovieSceneTimeHelpers.h"
 #include "MovieSceneToolHelpers.h"
 #include "ScopedTransaction.h"
-#include "EditorWidgets/Public/SEnumCombobox.h"
 #include "EditorStyleSet.h"
 
 class SFMODEventControlKeyEditor : public SCompoundWidget
@@ -25,7 +24,7 @@ public:
 
         ChildSlot[MovieSceneToolHelpers::MakeEnumComboBox(InEnum,
             TAttribute<int32>::Create(TAttribute<int32>::FGetter::CreateSP(this, &SFMODEventControlKeyEditor::OnGetCurrentValueAsInt)),
-            SEnumComboBox::FOnEnumSelectionChanged::CreateSP(this, &SFMODEventControlKeyEditor::OnChangeKey))];
+            FOnEnumSelectionChanged::CreateSP(this, &SFMODEventControlKeyEditor::OnChangeKey))];
     }
 
 private:

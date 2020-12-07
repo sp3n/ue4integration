@@ -1179,7 +1179,7 @@ void FFMODStudioEditorModule::ViewportDraw(UCanvas *Canvas, APlayerController *)
         ListenerTransform.NormalizeRotation();
 
         IFMODStudioModule::Get().SetListenerPosition(0, World, ListenerTransform, 0.0f);
-        IFMODStudioModule::Get().FinishSetListenerPosition(1, 0.0f);
+        IFMODStudioModule::Get().FinishSetListenerPosition(1);
     }
 }
 
