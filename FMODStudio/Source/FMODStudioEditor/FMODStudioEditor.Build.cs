@@ -33,7 +33,8 @@ namespace UnrealBuildTool.Rules
                     "FMODStudio",
                     "InputCore",
                     "UnrealEd",
-                    "Sequencer"
+                    "Sequencer",
+                    "DeveloperToolSettings"
                 }
                 );
 

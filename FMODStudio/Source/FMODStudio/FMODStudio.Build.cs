@@ -51,6 +51,7 @@ namespace UnrealBuildTool.Rules
 
             if (Target.bBuildEditor == true)
             {
+                PublicDependencyModuleNames.Add("DeveloperToolSettings");
                 PrivateDependencyModuleNames.Add("AssetRegistry");
                 PrivateDependencyModuleNames.Add("UnrealEd");
                 PrivateDependencyModuleNames.Add("Settings");

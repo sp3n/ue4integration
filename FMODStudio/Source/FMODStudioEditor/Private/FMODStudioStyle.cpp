@@ -3,6 +3,7 @@
 #include "FMODStudioStyle.h"
 #include "EditorStyle/Public/Interfaces/IEditorStyleModule.h"
 #include "Modules/ModuleManager.h"
+#include "Styling/SlateStyleRegistry.h"
 
 #define IMAGE_BRUSH(RelativePath, ...) FSlateImageBrush(Style.RootToContentDir(RelativePath, TEXT(".png")), __VA_ARGS__)
 #define BOX_BRUSH(RelativePath, ...) FSlateBoxBrush(Style.RootToContentDir(RelativePath, TEXT(".png")), __VA_ARGS__)
@@ -18,21 +19,18 @@ void FFMODStudioStyle::Initialize()
     {
         StyleInstance = Create();
     }
-
-    SetStyle(StyleInstance.ToSharedRef());
 }
 
 void FFMODStudioStyle::Shutdown()
 {
-    ResetToDefault();
+    FSlateStyleRegistry::UnRegisterSlateStyle(StyleInstance->GetStyleSetName());
     ensure(StyleInstance.IsUnique());
     StyleInstance.Reset();
 }
 
 TSharedRef<FSlateStyleSet> FFMODStudioStyle::Create()
 {
-    IEditorStyleModule &EditorStyle = FModuleManager::LoadModuleChecked<IEditorStyleModule>(TEXT("EditorStyle"));
-    TSharedRef<FSlateStyleSet> StyleRef = EditorStyle.CreateEditorStyleInstance();
+    TSharedRef<FSlateStyleSet> StyleRef = MakeShared<FSlateStyleSet>(TEXT("FMODStudioStyle"));
     FSlateStyleSet &Style = StyleRef.Get();
 
     const FVector2D Icon20x20(20.0f, 20.0f);
@@ -44,6 +42,8 @@ TSharedRef<FSlateStyleSet> FFMODStudioStyle::Create()
     Style.Set("ClassIcon.FMODAudioComponent", new IMAGE_BRUSH("Icons/ActorIcons/SoundActor_16x", FVector2D(16.0f, 16.0f)));
 
     Style.Set("ClassIcon.FMODAsset", new IMAGE_BRUSH("Icons/ActorIcons/SoundActor_16x", FVector2D(16.0f, 16.0f)));
+
+    FSlateStyleRegistry::RegisterSlateStyle(Style);
 
     return StyleRef;
 }
